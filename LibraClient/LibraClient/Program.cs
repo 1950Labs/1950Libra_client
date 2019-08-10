@@ -1,17 +1,15 @@
-﻿using Google.Protobuf;
+﻿using AdmissionControl;
+using Google.Protobuf;
 using Grpc.Core;
-using Multiformats.Hash;
-using Multiformats.Hash.Algorithms;
-using System;
-using System.Linq;
-using System.Text;
-using Types;
 using NBitcoin.DataEncoders;
 using NSec.Cryptography;
-using System.Security.Cryptography;
-using System.IO;
 using SHA3.Net;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace LibraClient
 {
@@ -22,7 +20,7 @@ namespace LibraClient
         const string RAWTX_HASH_SALT = "RawTransaction";
         static void Main(string[] args)
         {
-            
+
             Channel channel = new Channel("ac.testnet.libra.org:8000", ChannelCredentials.Insecure);
             var client = new AdmissionControl.AdmissionControl.AdmissionControlClient(channel);
 
@@ -33,10 +31,10 @@ namespace LibraClient
             var key = kdf.DeriveKey(sharedSecret, null, null, Ed25519.Ed25519);
             var sender = key.PublicKey.Export(KeyBlobFormat.RawPublicKey);
 
-            UInt64 seqNum = 4;
+            UInt64 seqNum = 2;
             string senderHex = hex.EncodeData(Sha3.Sha3256().ComputeHash(sender));
 
-            var rawTx = CreateRawTx(senderHex, seqNum, "da031ffc817fd7694095a6891eaf0f0af1c8ef2907f94fba2f2338d241162649", 0xffffUL, 10000UL, 0, 0UL);
+            var rawTx = CreateRawTx(senderHex, seqNum, "4ba2555fd146e79e37fda7a2f30dc1b4f3d9228aa48b230dbab0a18d407f2f9b", 0xffffUL, 10000UL, 0, 0UL);
 
             Console.WriteLine($"RawTx: {Convert.ToBase64String(rawTx.ToByteArray())}");
 
@@ -64,13 +62,14 @@ namespace LibraClient
             Console.WriteLine($"Submitting signed tx for {senderHex} and seqnum {seqNum}.");
 
 
-            var reply = client.SubmitTransaction(submitTxReq);
+            SubmitTransactionResponse reply = client.SubmitTransaction(submitTxReq);
             Console.WriteLine($"Reply AcStatus {reply.AcStatus.Code}.");
-
+            
             try
             {
-               GetTransaction(client, senderHex, seqNum);
-               //GetTransaction(client, "0197fa564143feee71f1308da2721e307fc2e0c8d8a0313e4bb67acc9269eba6", 4);
+                Task.Delay(5000).Wait();
+                GetTransaction(client, senderHex, seqNum);
+                //GetTransaction(client, "4ba2555fd146e79e37fda7a2f30dc1b4f3d9228aa48b230dbab0a18d407f2f9b", 1);
             }
             catch (Exception excp)
             {
@@ -99,7 +98,6 @@ namespace LibraClient
             rawTx.MaxGasAmount = maxGasAmount;
             rawTx.GasUnitPrice = maxGasUnitPrice;
             rawTx.ExpirationTime = expirationTime;
-
             return rawTx;
         }
 
