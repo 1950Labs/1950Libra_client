@@ -1,2 +1,0 @@
-obj\Debug\netcoreapp2.1/ValidatorSet.cs: Protos/validator_public_keys.proto\
- Protos/validator_set.proto

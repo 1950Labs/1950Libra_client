@@ -1,6 +1,0 @@
-obj\Debug\netcoreapp2.1/ValidatorChange.cs: Protos/access_path.proto\
- Protos/transaction_info.proto\
- Protos/proof.proto\
- Protos/events.proto\
- Protos/ledger_info.proto\
- Protos/validator_change.proto

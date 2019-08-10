@@ -1,2 +1,0 @@
-obj\Debug\netcoreapp2.1/Proof.cs: Protos/transaction_info.proto\
- Protos/proof.proto

@@ -1,3 +1,0 @@
-obj\Debug\netcoreapp2.1/AccountStateBlob.cs: Protos/transaction_info.proto\
- Protos/proof.proto\
- Protos/account_state_blob.proto
