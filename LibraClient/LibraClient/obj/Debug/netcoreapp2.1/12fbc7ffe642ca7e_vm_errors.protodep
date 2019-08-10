@@ -1,0 +1,2 @@
+obj\Debug\netcoreapp2.1/VmErrors.cs: Protos/language_storage.proto\
+ Protos/vm_errors.proto

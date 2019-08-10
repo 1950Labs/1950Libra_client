@@ -1,0 +1,10 @@
+obj\Debug\netcoreapp2.1/GetWithProof.cs: Protos/access_path.proto\
+ Protos/transaction_info.proto\
+ Protos/proof.proto\
+ Protos/account_state_blob.proto\
+ Protos/events.proto\
+ Protos/ledger_info.proto\
+ C:/Users/Diego/.nuget/packages/grpc.tools/1.22.0/build/native/include/google/protobuf/wrappers.proto\
+ Protos/transaction.proto\
+ Protos/validator_change.proto\
+ Protos/get_with_proof.proto

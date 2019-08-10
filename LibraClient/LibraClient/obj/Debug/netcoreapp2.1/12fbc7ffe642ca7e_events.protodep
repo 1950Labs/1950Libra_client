@@ -1,0 +1,4 @@
+obj\Debug\netcoreapp2.1/Events.cs: Protos/access_path.proto\
+ Protos/transaction_info.proto\
+ Protos/proof.proto\
+ Protos/events.proto

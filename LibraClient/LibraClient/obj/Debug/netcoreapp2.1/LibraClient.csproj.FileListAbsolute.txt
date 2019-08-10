@@ -1,0 +1,11 @@
+C:\Users\Diego\source\repos\LibraClient\LibraClient\bin\Debug\netcoreapp2.1\LibraClient.deps.json
+C:\Users\Diego\source\repos\LibraClient\LibraClient\bin\Debug\netcoreapp2.1\LibraClient.runtimeconfig.json
+C:\Users\Diego\source\repos\LibraClient\LibraClient\bin\Debug\netcoreapp2.1\LibraClient.runtimeconfig.dev.json
+C:\Users\Diego\source\repos\LibraClient\LibraClient\bin\Debug\netcoreapp2.1\LibraClient.dll
+C:\Users\Diego\source\repos\LibraClient\LibraClient\obj\Debug\netcoreapp2.1\LibraClient.csproj.CoreCompileInputs.cache
+C:\Users\Diego\source\repos\LibraClient\LibraClient\obj\Debug\netcoreapp2.1\LibraClient.AssemblyInfoInputs.cache
+C:\Users\Diego\source\repos\LibraClient\LibraClient\obj\Debug\netcoreapp2.1\LibraClient.AssemblyInfo.cs
+C:\Users\Diego\source\repos\LibraClient\LibraClient\bin\Debug\netcoreapp2.1\LibraClient.pdb
+C:\Users\Diego\source\repos\LibraClient\LibraClient\obj\Debug\netcoreapp2.1\LibraClient.dll
+C:\Users\Diego\source\repos\LibraClient\LibraClient\obj\Debug\netcoreapp2.1\LibraClient.pdb
+C:\Users\Diego\source\repos\LibraClient\LibraClient\obj\Debug\netcoreapp2.1\LibraClient.csprojAssemblyReference.cache
