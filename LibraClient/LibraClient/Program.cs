@@ -26,15 +26,15 @@ namespace LibraClient
 
             HexEncoder hex = new HexEncoder();
 
-            SharedSecret sharedSecret = SharedSecret.Import(Encoding.UTF8.GetBytes("dummy"));
+            SharedSecret sharedSecret = SharedSecret.Import(Encoding.UTF8.GetBytes("newdummy"));
             HkdfSha512 kdf = new HkdfSha512();
             var key = kdf.DeriveKey(sharedSecret, null, null, Ed25519.Ed25519);
             var sender = key.PublicKey.Export(KeyBlobFormat.RawPublicKey);
 
-            UInt64 seqNum = 2;
+            UInt64 seqNum = 0;
             string senderHex = hex.EncodeData(Sha3.Sha3256().ComputeHash(sender));
 
-            var rawTx = CreateRawTx(senderHex, seqNum, "4ba2555fd146e79e37fda7a2f30dc1b4f3d9228aa48b230dbab0a18d407f2f9b", 0xffffUL, 10000UL, 0, 0UL);
+            var rawTx = CreateRawTx(senderHex, seqNum, "4ba2555fd146e79e37fda7a2f30dc1b4f3d9228aa48b230dbab0a18d407f2f9b", 0xffffUL, 1000UL, 10000UL);
 
             Console.WriteLine($"RawTx: {Convert.ToBase64String(rawTx.ToByteArray())}");
 
@@ -77,7 +77,7 @@ namespace LibraClient
             }
         }
 
-        private static Types.RawTransaction CreateRawTx(string senderHex, UInt64 seqNum, string receipientHex, UInt64 recipientAmount, UInt64 maxGasAmount, UInt64 maxGasUnitPrice, UInt64 expirationTime)
+        private static Types.RawTransaction CreateRawTx(string senderHex, UInt64 seqNum, string receipientHex, UInt64 recipientAmount, UInt64 maxGasAmount, UInt64 maxGasUnitPrice)
         {
             HexEncoder hex = new HexEncoder();
 
@@ -97,7 +97,7 @@ namespace LibraClient
 
             rawTx.MaxGasAmount = maxGasAmount;
             rawTx.GasUnitPrice = maxGasUnitPrice;
-            rawTx.ExpirationTime = expirationTime;
+            rawTx.ExpirationTime = (ulong)DateTimeOffset.UtcNow.AddSeconds(60).ToUnixTimeSeconds();
             return rawTx;
         }
 
