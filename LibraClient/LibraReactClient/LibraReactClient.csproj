@@ -1,0 +1,107 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
+    <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
+    <IsPackable>false</IsPackable>
+    <SpaRoot>ClientApp\</SpaRoot>
+    <DefaultItemExcludes>$(DefaultItemExcludes);$(SpaRoot)node_modules\**</DefaultItemExcludes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Protobuf" Version="3.9.1" />
+    <PackageReference Include="Grpc" Version="1.22.0" />
+    <PackageReference Include="Grpc.Tools" Version="1.22.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="2.1.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.1.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.1.1" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.9" />
+    <PackageReference Include="Multiformats.Hash" Version="1.5.0" />
+    <PackageReference Include="NBitcoin" Version="4.1.2.37" />
+    <PackageReference Include="NSec.Cryptography" Version="19.5.0" />
+    <PackageReference Include="SHA3.Net" Version="1.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Don't publish the SPA source files, but do show them in the project files list -->
+    <Content Remove="$(SpaRoot)**" />
+    <None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Protos\access_path.proto" />
+    <None Remove="Protos\account_state_blob.proto" />
+    <None Remove="Protos\admission_control.proto" />
+    <None Remove="Protos\events.proto" />
+    <None Remove="Protos\get_with_proof.proto" />
+    <None Remove="Protos\language_storage.proto" />
+    <None Remove="Protos\ledger_info.proto" />
+    <None Remove="Protos\mempool_status.proto" />
+    <None Remove="Protos\proof.proto" />
+    <None Remove="Protos\transaction.proto" />
+    <None Remove="Protos\transaction_info.proto" />
+    <None Remove="Protos\validator_change.proto" />
+    <None Remove="Protos\validator_public_keys.proto" />
+    <None Remove="Protos\validator_set.proto" />
+    <None Remove="Protos\vm_errors.proto" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="Protos\access_path.proto" />
+    <Protobuf Include="Protos\account_state_blob.proto" />
+    <Protobuf Include="Protos\admission_control.proto" />
+    <Protobuf Include="Protos\events.proto" />
+    <Protobuf Include="Protos\get_with_proof.proto" />
+    <Protobuf Include="Protos\language_storage.proto" />
+    <Protobuf Include="Protos\ledger_info.proto" />
+    <Protobuf Include="Protos\mempool_status.proto" />
+    <Protobuf Include="Protos\proof.proto" />
+    <Protobuf Include="Protos\transaction.proto" />
+    <Protobuf Include="Protos\transaction_info.proto" />
+    <Protobuf Include="Protos\validator_change.proto" />
+    <Protobuf Include="Protos\validator_public_keys.proto" />
+    <Protobuf Include="Protos\validator_set.proto" />
+    <Protobuf Include="Protos\vm_errors.proto" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="ClientApp\src\images\1950labs.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="ClientApp\src\images\1950labs.svg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
+    <!-- Ensure Node.js is installed -->
+    <Exec Command="node --version" ContinueOnError="true">
+      <Output TaskParameter="ExitCode" PropertyName="ErrorCode" />
+    </Exec>
+    <Error Condition="'$(ErrorCode)' != '0'" Text="Node.js is required to build and run this project. To continue, please install Node.js from https://nodejs.org/, and then restart your command prompt or IDE." />
+    <Message Importance="high" Text="Restoring dependencies using 'npm'. This may take several minutes..." />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="npm install" />
+  </Target>
+
+  <Target Name="PublishRunWebpack" AfterTargets="ComputeFilesToPublish">
+    <!-- As part of publishing, ensure the JS resources are freshly built in production mode -->
+    <Exec WorkingDirectory="$(SpaRoot)" Command="npm install" />
+    <Exec WorkingDirectory="$(SpaRoot)" Command="npm run build" />
+
+    <!-- Include the newly-built files in the publish output -->
+    <ItemGroup>
+      <DistFiles Include="$(SpaRoot)build\**" />
+      <ResolvedFileToPublish Include="@(DistFiles->'%(FullPath)')" Exclude="@(ResolvedFileToPublish)">
+        <RelativePath>%(DistFiles.Identity)</RelativePath>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </ResolvedFileToPublish>
+    </ItemGroup>
+  </Target>
+
+</Project>

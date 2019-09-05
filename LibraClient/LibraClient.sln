@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29025.244
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LibraClient", "LibraClient\LibraClient.csproj", "{8B8CA85C-4098-4385-96D6-E5A87602EC19}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibraClient", "LibraClient\LibraClient.csproj", "{8B8CA85C-4098-4385-96D6-E5A87602EC19}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibraReactClient", "LibraReactClient\LibraReactClient.csproj", "{7BEF105B-4874-42E2-BF34-9991277F7655}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{8B8CA85C-4098-4385-96D6-E5A87602EC19}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8B8CA85C-4098-4385-96D6-E5A87602EC19}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8B8CA85C-4098-4385-96D6-E5A87602EC19}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7BEF105B-4874-42E2-BF34-9991277F7655}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7BEF105B-4874-42E2-BF34-9991277F7655}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7BEF105B-4874-42E2-BF34-9991277F7655}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7BEF105B-4874-42E2-BF34-9991277F7655}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

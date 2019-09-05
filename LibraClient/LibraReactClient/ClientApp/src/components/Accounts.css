@@ -1,0 +1,12 @@
+﻿.spinnerContainer{
+    text-align: center;
+}
+
+.spinner {
+    width: 70px
+}
+
+.actionButton {
+    margin: 3px;
+}
+
