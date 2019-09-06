@@ -41,11 +41,10 @@ namespace LibraReactClient.BusinessLayer.Logic
             HkdfSha512 kdf = new HkdfSha512();
             var key = kdf.DeriveKey(sharedSecret, null, null, Ed25519.Ed25519);
             var sender = key.PublicKey.Export(KeyBlobFormat.RawPublicKey);
-
             UInt64 seqNum = account.SequenceNumber;
             string senderHex = hex.EncodeData(Sha3.Sha3256().ComputeHash(sender));
 
-            var rawTx = CreateRawTx(senderHex, seqNum, input.Recipient, Convert.ToUInt64(input.Amount * 1000000), 1000UL, 10000UL);
+            var rawTx = CreateRawTx(senderHex, seqNum, input.Recipient, Convert.ToUInt64(input.Amount * 1000000), 29925, 0);
 
             Console.WriteLine($"RawTx: {Convert.ToBase64String(rawTx.ToByteArray())}");
 
@@ -73,7 +72,7 @@ namespace LibraReactClient.BusinessLayer.Logic
             Console.WriteLine($"Submitting signed tx for {senderHex} and seqnum {seqNum}.");
 
 
-            SubmitTransactionResponse reply = client.SubmitTransaction(submitTxReq);
+            SubmitTransactionResponse reply = client.SubmitTransaction(submitTxReq, new Metadata());
             Console.WriteLine($"Reply AcStatus {reply.AcStatus.Code}.");
             Types.RawTransaction resultTx = null;
             try
@@ -93,14 +92,15 @@ namespace LibraReactClient.BusinessLayer.Logic
         {
             HexEncoder hex = new HexEncoder();
 
-            byte[] PtPTrxBytecode = new byte[] { 76, 73, 66, 82, 65, 86, 77, 10, 1, 0, 7, 1, 74, 0, 0, 0, 4, 0, 0, 0, 3, 78, 0, 0, 0, 6, 0, 0, 0, 12, 84, 0, 0, 0, 6, 0, 0, 0, 13, 90, 0, 0, 0, 6, 0, 0, 0, 5, 96, 0, 0, 0, 41, 0, 0, 0, 4, 137, 0, 0, 0, 32, 0, 0, 0, 7, 169, 0, 0, 0, 15, 0, 0, 0, 0, 0, 0, 1, 0, 2, 0, 1, 3, 0, 2, 0, 2, 4, 2, 0, 3, 0, 3, 2, 4, 2, 6, 60, 83, 69, 76, 70, 62, 12, 76, 105, 98, 114, 97, 65, 99, 99, 111, 117, 110, 116, 4, 109, 97, 105, 110, 15, 112, 97, 121, 95, 102, 114, 111, 109, 95, 115, 101, 110, 100, 101, 114, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 1, 4, 0, 12, 0, 12, 1, 19, 1, 0, 2 };
+            byte[] PeerToPeerTransactionByteCode = new byte[] { 76, 73, 66, 82, 65, 86, 77, 10, 1, 0, 7, 1, 74, 0, 0, 0, 4, 0, 0, 0, 3, 78, 0, 0, 0, 6, 0, 0, 0, 12, 84, 0, 0, 0, 6, 0, 0, 0, 13, 90, 0, 0, 0, 6, 0, 0, 0, 5, 96, 0, 0, 0, 41, 0, 0, 0, 4, 137, 0, 0, 0, 32, 0, 0, 0, 7, 169, 0, 0, 0, 15, 0, 0, 0, 0, 0, 0, 1, 0, 2, 0, 1, 3, 0, 2, 0, 2, 4, 2, 0, 3, 0, 3, 2, 4, 2, 6, 60, 83, 69, 76, 70, 62, 12, 76, 105, 98, 114, 97, 65, 99, 99, 111, 117, 110, 116, 4, 109, 97, 105, 110, 15, 112, 97, 121, 95, 102, 114, 111, 109, 95, 115, 101, 110, 100, 101, 114, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 1, 4, 0, 12, 0, 12, 1, 19, 1, 0, 2 };
 
             Types.RawTransaction rawTx = new Types.RawTransaction();
             rawTx.SenderAccount = Google.Protobuf.ByteString.CopyFrom(hex.DecodeData(senderHex));
             rawTx.SequenceNumber = seqNum;
             rawTx.Program = new Types.Program();
             //rawTx.Program.Code = Google.Protobuf.ByteString.CopyFrom(Convert.FromBase64String("TElCUkFWTQoBAAcBSgAAAAQAAAADTgAAAAYAAAAMVAAAAAYAAAANWgAAAAYAAAAFYAAAACkAAAAEiQAAACAAAAAHqQAAAA4AAAAAAAABAAIAAQMAAgACBAIAAwADAgQCBjxTRUxGPgxMaWJyYUFjY291bnQEbWFpbg9wYXlfZnJvbV9zZW5kZXIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAgEEAAwADAERAQAC"));
-            rawTx.Program.Code = Google.Protobuf.ByteString.CopyFrom(PtPTrxBytecode);
+            rawTx.Program.Code = Google.Protobuf.ByteString.CopyFrom(PeerToPeerTransactionByteCode);
+
             var recipientArg = new Types.TransactionArgument { Type = Types.TransactionArgument.Types.ArgType.Address };
             recipientArg.Data = Google.Protobuf.ByteString.CopyFrom(hex.DecodeData(receipientHex));
             rawTx.Program.Arguments.Add(recipientArg);
@@ -112,6 +112,7 @@ namespace LibraReactClient.BusinessLayer.Logic
             rawTx.MaxGasAmount = maxGasAmount;
             rawTx.GasUnitPrice = maxGasUnitPrice;
             rawTx.ExpirationTime = (ulong)DateTimeOffset.UtcNow.AddSeconds(60).ToUnixTimeSeconds();
+            
             return rawTx;
         }
 
