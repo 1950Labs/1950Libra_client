@@ -158,9 +158,8 @@ namespace LibraReactClient.BusinessLayer.Logic
             startIndex += 9;// 8+1 self.delegated_withdrawal_capability
             account.ReceivedEventsCount = BitConverter.ToUInt64(SubArray(bytes, startIndex, 8));
 
-            startIndex += 44;
+            startIndex += 88;
             account.SentEventsCount = BitConverter.ToUInt64(SubArray(bytes, startIndex, 8));
-            startIndex += 44;
             account.SequenceNumber = BitConverter.ToUInt64(SubArray(bytes, startIndex, 8));
 
             return account;
