@@ -44,7 +44,7 @@ namespace LibraReactClient.BusinessLayer.Logic
             UInt64 seqNum = account.SequenceNumber;
             string senderHex = hex.EncodeData(Sha3.Sha3256().ComputeHash(sender));
 
-            var rawTx = CreateRawTx(senderHex, seqNum, input.Recipient, Convert.ToUInt64(input.Amount * 1000000), 29925, 0);
+            var rawTx = CreateRawTx(senderHex, seqNum, input.Recipient, Convert.ToUInt64(input.Amount * 1000000), 100000, 0);
 
             Console.WriteLine($"RawTx: {Convert.ToBase64String(rawTx.ToByteArray())}");
 
