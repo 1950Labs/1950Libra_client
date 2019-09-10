@@ -23,7 +23,6 @@ const withAuthorization = (authCondition) => (Component) => {
                     this.props.history.push(routes.SIGN_IN);
 
                 } else {
-                    debugger;
                     this.setState({ userUid: authUser.uid });
                     authUser.getIdToken().then(function (idToken) {  // 
                         this.setState({ token: idToken });

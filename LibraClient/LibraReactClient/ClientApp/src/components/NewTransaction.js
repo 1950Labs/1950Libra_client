@@ -176,7 +176,14 @@ class NewTransaction extends Component {
                                 </div>
                                 :
                                             <div>
-                                                {this.state.transactionSuccess ? <span className="successMessage">Transaction Success</span> : <span className="errorMessage">Transaction Error</span>}
+                                                {this.state.transactionSuccess ?
+                                                    <div className="MessageContainerTx">
+                                                        <span className="successMessage">Transaction Success</span>
+                                                        <div className="TestnetContainerTx">
+                                                            <p className="TestnetTextTx">Testnet</p>
+                                                        </div>
+                                                    </div> :
+                                                    <span className="errorMessage">Transaction Error</span>}
                                 </div>
                             }
                             </div> : null

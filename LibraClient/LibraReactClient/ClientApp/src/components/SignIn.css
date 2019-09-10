@@ -292,7 +292,7 @@ h2.active {
 #iconLibra {
     width: 10%;
     margin-top: 7px;
-    margin-bottom: 20px;
+    margin-bottom: 5px;
 }
 
 .PoweredBy {
@@ -316,4 +316,18 @@ h2.active {
     display: inline-flex;
 }
 
+.TestnetContainerLogin {
+    width: 100%;
+    text-align: center;
+}
+
+.TestnetTextLogin {
+    width: 50px;
+    font-size: 11px;
+    background-color: darkred;
+    color: white;
+    display: inline-block;
+    margin-bottom: 15px;
+    border-radius: 5px;
+}
 

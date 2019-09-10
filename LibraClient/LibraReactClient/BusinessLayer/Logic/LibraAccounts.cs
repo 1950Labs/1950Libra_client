@@ -270,7 +270,7 @@ namespace LibraReactClient.BusinessLayer.Logic
             rawTx.Program.Arguments.Add(addressArg);
 
             var amountArg = new Types.TransactionArgument { Type = Types.TransactionArgument.Types.ArgType.U64 };
-            amountArg.Data = Google.Protobuf.ByteString.CopyFrom(BitConverter.GetBytes((ulong)0));
+            amountArg.Data = Google.Protobuf.ByteString.CopyFrom(BitConverter.GetBytes(Convert.ToUInt64(0)));
             rawTx.Program.Arguments.Add(amountArg);
 
             rawTx.MaxGasAmount = maxGasAmount;
