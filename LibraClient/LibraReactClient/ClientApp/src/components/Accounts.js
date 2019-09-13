@@ -4,9 +4,12 @@ import './Accounts.css';
 import InformationModal from './InformationModal';
 import MintModal from './MintModal';
 import withAuthorization from './WithAuthorization';
+import ReCAPTCHA from "react-google-recaptcha";
 
 class Accounts extends Component {
     displayName = Accounts.name
+
+    recaptchaRef = React.createRef();
 
   constructor(props) {
     super(props);
@@ -37,6 +40,7 @@ class Accounts extends Component {
       this.handleCloseInformationModal = this.handleCloseInformationModal.bind(this);
       this.handleShowMintModal = this.handleShowMintModal.bind(this);
       this.handleCloseMintModal = this.handleCloseMintModal.bind(this);
+      this.onChangeReCaptcha = this.onChangeReCaptcha.bind(this);
     }
 
     componentDidMount() {
@@ -61,6 +65,12 @@ class Accounts extends Component {
 
        
     }
+    onChangeReCaptcha(value) {
+        if (value) {
+            this.handleConfirm();
+        }
+    }
+
 
     handleCloseModal() {
         this.setState({ showModal: false });
@@ -222,26 +232,36 @@ class Accounts extends Component {
 
                     <Modal.Body>
                         {!this.state.savingAccount ?
-                            <form>
-                                <FormGroup controlId="owner">
-                                    <ControlLabel>Owner:</ControlLabel>
-                                    <FormControl type="text" placeholder="Enter the account owner" value={this.state.recipient} onChange={this.handleChangeOwner} />
-                                    <HelpBlock>
-                                        Write a unique name to create an new account.
-                                </HelpBlock>
-                                </FormGroup>
-                            </form>
+                            <div>
+                                <form>
+                                    <FormGroup controlId="owner">
+                                        <ControlLabel>Owner:</ControlLabel>
+                                        <FormControl type="text" placeholder="Enter the account owner" value={this.state.recipient} onChange={this.handleChangeOwner} />
+                                        <HelpBlock>
+                                            Write a unique name to create an new account.
+                                    </HelpBlock>
+                                    </FormGroup>
+                                </form>
+                                <ReCAPTCHA
+                                    ref={this.recaptchaRef}
+                                    sitekey="6Le0LrgUAAAAAK1rJfEnyZvL7boTYKfm71ULxLHH"
+                                    size="invisible"
+                                    badge="inline"
+                                    onChange={this.onChangeReCaptcha}
+                                />
+                            </div>
                             :
                             <div className="spinnerContainer">
                                 <img className="spinner" src={require("../images/spinner.gif")} alt="spinner" />    
                             </div>
+                            
                         }
-
+                        
                     </Modal.Body>
 
                     <Modal.Footer>
                         <Button onClick={this.handleCloseModal} disabled={this.state.savingAccount}>Close</Button>
-                        <Button bsStyle="primary" onClick={this.handleConfirm} disabled={this.state.savingAccount}>Confirm</Button>
+                        <Button bsStyle="primary" onClick={() => { this.recaptchaRef.current.execute(); }} disabled={this.state.savingAccount}>Confirm</Button>
                     </Modal.Footer>
                 </Modal>
 
