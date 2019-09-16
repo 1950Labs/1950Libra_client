@@ -10,6 +10,7 @@ import * as routes from './constants/routes'
 import { Layout } from './components/Layout';
 import withAuthentication from './components/WithAuthentication';
 import AuthUserContext from './components/AuthUserContext'
+import TransactionResult from './components/TransactionResult';
 
 class App extends Component {
   displayName = App.name
@@ -40,6 +41,10 @@ class App extends Component {
                               path={routes.NEW_TRANSACTION}
                               component={NewTransaction}
                           />
+                          <Route
+                              path={routes.TRANSACTION_RESULT}
+                              component={TransactionResult}
+                          />
                           
                       </Layout>
                       : 
@@ -62,6 +67,10 @@ class App extends Component {
                           <Route
                               path={routes.NEW_TRANSACTION}
                               component={NewTransaction}
+                          />
+                          <Route
+                              path={routes.TRANSACTION_RESULT}
+                              component={TransactionResult}
                           />
                           <Route
                               exact path={routes.SIGN_IN}

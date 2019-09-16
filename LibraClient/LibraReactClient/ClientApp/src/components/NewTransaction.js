@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Button, FormGroup, ControlLabel, FormControl, HelpBlock, Glyphicon, Modal, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import './NewTransaction.css';
 import withAuthorization from './WithAuthorization';
+import * as routes from '../constants/routes'    
 
 class NewTransaction extends Component {
     displayName = NewTransaction.name
@@ -91,6 +92,7 @@ class NewTransaction extends Component {
 
     handleSubmit(event) {
         this.setState({ transactionSubmitted: true, loading: true });
+        let props = this.props;
         fetch('api/Libra/SubmitTransaction', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'Authorization': 'Bearer ' + this.props.token },
@@ -105,6 +107,10 @@ class NewTransaction extends Component {
                 this.setState({ loading: false });
                 if (data.sequenceNumber) {
                     this.setState({ transactionSuccess: true });
+                    this.props.history.push({
+                        pathname: routes.TRANSACTION_RESULT,
+                        search: '?sourceAccount=' + this.state.sourceAccountId + '&seqNumber=' + data.sequenceNumber
+                    })
                 } else {
                     this.setState({ transactionSuccess: false });
                 }

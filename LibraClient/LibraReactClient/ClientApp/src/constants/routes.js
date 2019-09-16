@@ -5,3 +5,4 @@ export const ACCOUNTS = '/accounts';
 export const NEW_TRANSACTION = '/newTransaction';
 export const PASSWORD_FORGET = '/pw-forget';
 export const SIGN_UP = '/signup';
+export const TRANSACTION_RESULT = '/transactionResult';
