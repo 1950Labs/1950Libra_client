@@ -20,7 +20,8 @@ class NewTransaction extends Component {
             formValid: false,
             loading: false,
             transactionSubmitted: false,
-            transactionSuccess: false
+            transactionSuccess: false,
+            isSourceSelection: false
         };
 
         this.handleChangeRecipient = this.handleChangeRecipient.bind(this);
@@ -29,6 +30,7 @@ class NewTransaction extends Component {
         this.handleShowModal = this.handleShowModal.bind(this);
         this.handleCloseModal = this.handleCloseModal.bind(this);
         this.handleSelectSourceAccount = this.handleSelectSourceAccount.bind(this);
+        this.handleSelectRecipientAccount = this.handleSelectRecipientAccount.bind(this);
 
     }
 
@@ -36,9 +38,10 @@ class NewTransaction extends Component {
         this.setState({ recipient: e.target.value });
     }
 
-    handleShowModal() {
-        this.setState({ showModal: true, loadingAccounts: true });
-        this.getAccounts();
+    handleShowModal(isSource) {
+
+        this.setState({ showModal: true, loadingAccounts: true, isSourceSelection: isSource });
+        this.getAccounts(isSource);
     }
 
     handleCloseModal() {
@@ -47,6 +50,10 @@ class NewTransaction extends Component {
 
     handleSelectSourceAccount(account) {
         this.setState({ sourceAccountId: account.accountId, source: account.owner + ' - ' + account.addressHashed, showModal: false });
+    }
+
+    handleSelectRecipientAccount(account) {
+        this.setState({ recipient: account.addressHashed, showModal: false });
     }
 
     handleChangeAmount(e) {
@@ -61,12 +68,20 @@ class NewTransaction extends Component {
         }
     }
 
-    getAccounts() {
+    getAccounts(isSource) {
+        let state = this.state;
         fetch('api/Libra/GetAccounts?userUID=' + this.props.userUid, {
             headers: { 'Authorization': 'Bearer ' + this.props.token }
              })
             .then(response => response.json())
             .then(data => {
+
+                if (!isSource) {
+                    data = data.filter(function (account) {
+                        return account.accountId !== state.sourceAccountId;
+                    });
+                }
+
                 this.setState({
                     accounts: data,
                     loadingAccounts: false
@@ -97,7 +112,7 @@ class NewTransaction extends Component {
         event.preventDefault();
     }
 
-    static renderAccountsTable(accounts, handleSelectSourceAccount) {
+    static renderAccountsTable(accounts, handleSelectAccount) {
         return (
             <div>
                 <table className='table'>
@@ -116,7 +131,7 @@ class NewTransaction extends Component {
                                             <td>{account.addressHashed}</td>
                                             <td>
                                                 <OverlayTrigger placement="top" overlay={<Tooltip id="tooltip">Select</Tooltip>}>
-                                                    <Button bsStyle="primary" className="actionButton" onClick={() => handleSelectSourceAccount(account)}> <Glyphicon glyph='ok-circle' /></Button>
+                                                    <Button bsStyle="primary" className="actionButton" onClick={() => handleSelectAccount(account)}> <Glyphicon glyph='ok-circle' /></Button>
                                                 </OverlayTrigger>
                                             </td>
                                         </tr>
@@ -142,7 +157,7 @@ class NewTransaction extends Component {
                         <ControlLabel>Source Libra account:</ControlLabel>
                         <div className="sourceAccountContainer">
                             <FormControl type="text" placeholder="Select source Libra account" value={this.state.source} readOnly></FormControl>
-                            <Button bsStyle="primary" className="searchAccounts" onClick={this.handleShowModal}> <Glyphicon glyph='search' /></Button>
+                            <Button bsStyle="primary" className="searchAccounts" onClick={() => this.handleShowModal(true)}> <Glyphicon glyph='search' /></Button>
                         </div>
                         <HelpBlock >
                             The source Libra account must exist in the network.
@@ -150,7 +165,10 @@ class NewTransaction extends Component {
                     </FormGroup>
                     <FormGroup controlId="recipient">
                         <ControlLabel>Recipient Libra account:</ControlLabel>
-                        <FormControl type="text" placeholder="Enter recipient Libra account" value={this.state.recipient} onChange={this.handleChangeRecipient} />
+                        <div className="recipientAccountContainer">
+                            <FormControl type="text" placeholder="Enter recipient Libra account" value={this.state.recipient} onChange={this.handleChangeRecipient} disabled={!this.state.source} />
+                            <Button bsStyle="primary" className="searchAccounts" onClick={() => this.handleShowModal(false)} disabled={!this.state.source}> <Glyphicon glyph='search' /></Button>
+                        </div>
                         <HelpBlock>
                             The recipient account could not exists in the Libra network
                     </HelpBlock>
@@ -210,7 +228,7 @@ class NewTransaction extends Component {
                                 :
                                 <div>
                                     <div>
-                                        {NewTransaction.renderAccountsTable(this.state.accounts, this.handleSelectSourceAccount)}
+                                        {NewTransaction.renderAccountsTable(this.state.accounts, this.state.isSourceSelection ? this.handleSelectSourceAccount : this.handleSelectRecipientAccount)}
                                     </div>
                                 </div>
                             }
