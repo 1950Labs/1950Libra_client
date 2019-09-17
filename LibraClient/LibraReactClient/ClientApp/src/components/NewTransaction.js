@@ -109,10 +109,11 @@ class NewTransaction extends Component {
                     this.setState({ transactionSuccess: true });
                     this.props.history.push({
                         pathname: routes.TRANSACTION_RESULT,
-                        search: '?sourceAccount=' + this.state.sourceAccountId + '&seqNumber=' + data.sequenceNumber
+                        state: { transactionResult: data, transactionStatus: 'success' }
                     })
                 } else {
                     this.setState({ transactionSuccess: false });
+                    state: { transactionStatus: 'failed' }
                 }
             });
         event.preventDefault();
@@ -198,17 +199,8 @@ class NewTransaction extends Component {
                                 <div>
                                     <img className="spinner" src={require("../images/spinner.gif")} alt="spinner" />
                                 </div>
-                                :
-                                            <div>
-                                                {this.state.transactionSuccess ?
-                                                    <div className="MessageContainerTx">
-                                                        <span className="successMessage">Transaction Success</span>
-                                                        <div className="TestnetContainerTx">
-                                                            <p className="TestnetTextTx">Testnet</p>
-                                                        </div>
-                                                    </div> :
-                                                    <span className="errorMessage">Transaction Error</span>}
-                                </div>
+                                : null
+                                            
                             }
                             </div> : null
                         }

@@ -56,22 +56,3 @@ span.input-group-addon {
     margin-left: 7px;
 }
 
-.TestnetContainerTx {
-    width: 100%;
-    text-align: center;
-}
-
-.TestnetTextTx {
-    width: 50px;
-    font-size: 11px;
-    background-color: darkred;
-    color: white;
-    border-radius: 5px;
-    margin-left: 5px;
-    margin-top: 3px;
-}
-
-.MessageContainerTx {
-    display: -webkit-inline-box;
-    vertical-align:middle;
-}
