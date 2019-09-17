@@ -20,7 +20,7 @@ class TransactionResult extends Component {
             this.setState({
                 transactionMessage: 'Transaction successfull',
                 transactionIcon: 'success_icon.svg',
-                transactionSeqNumber: this.state.sequenceNumber
+                transactionSeqNumber: this.state.transactionResult.sequenceNumber
             });
         } else {
             this.setState({
@@ -33,18 +33,20 @@ class TransactionResult extends Component {
 
     render() {
         return (
-            
-            <div>
+
+            <div className="transactionResultContainer">
                 {
                     this.state.transactionIcon ?
                         <div className="transactionResult">
                             <img className="transactionIcon" src={require("../images/" + this.state.transactionIcon)} alt="logo" />
                             <div className="transactionMessage" >{this.state.transactionMessage}</div>
+                            
                             <div className="MessageContainerTx">
                                 <div className="TestnetContainerTx">
                                     <p className="TestnetTextTx">Testnet</p>
                                 </div>
                             </div>
+                            <div className="informationMessgae">This is a Testnet transaction that has no actual value</div>
                             {
                                 this.state.transactionSeqNumber ?
                                     <p> Sequence number: {this.state.transactionSeqNumber}</p>
