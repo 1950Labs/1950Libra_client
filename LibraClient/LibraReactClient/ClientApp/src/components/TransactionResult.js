@@ -40,7 +40,7 @@ class TransactionResult extends Component {
                     this.state.transactionIcon ?
                         <div className="transactionResult">
                             <img className="transactionIcon" src={require("../images/" + this.state.transactionIcon)} alt="logo" />
-                            <div className={this.state.transactionStatus === 'success' ? 'transactionMessageSuccess' : 'transactionMessageError'}>{this.state.transactionMessage}</div>
+                            <div className={this.state.transactionStatus === 'success' ? 'transactionMessageSuccess' : 'transactionMessageError'}>{this.state.transactionMessage} </div>
                             
                             <div className="MessageContainerTx">
                                 <div className="TestnetContainerTx">
@@ -49,7 +49,7 @@ class TransactionResult extends Component {
                             </div>
                             <div className="informationMessgae">This is a Testnet transaction that has no actual value</div>
                             <ListGroup>
-                                <ListGroupItem header="Amount">{this.state.transactionResult.amount}</ListGroupItem>
+                                <ListGroupItem header="Amount">{this.state.transactionResult.amount}  <img className="libraIconTR" src={require("../images/libra_icon.svg")} alt="logo" /></ListGroupItem>
                                 <ListGroupItem header="Source account">{this.state.transactionResult.sourceHex}</ListGroupItem>
                                 <ListGroupItem header="Recipient account">{this.state.transactionResult.recipientHex}</ListGroupItem>
                                 {

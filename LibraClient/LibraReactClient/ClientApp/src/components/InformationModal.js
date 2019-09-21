@@ -42,7 +42,7 @@ class InformationModal extends Component {
             <ListGroupItem header="Account Id">{this.state.account.accountId}</ListGroupItem>
             <ListGroupItem header="Owner">{this.state.account.owner}</ListGroupItem>
             <ListGroupItem header="Address">{this.state.account.addressHashed}</ListGroupItem>
-            <ListGroupItem header="Balance">{this.state.account.balance}</ListGroupItem>
+            <ListGroupItem header="Balance">{this.state.account.balance} <img className="libraIconIM" src={require("../images/libra_icon.svg")} alt="logo" /></ListGroupItem>
             <ListGroupItem header="Sequence number">{this.state.account.sequenceNumber}</ListGroupItem>
             <ListGroupItem header="Sent events count">{this.state.account.sentEventsCount}</ListGroupItem>
             <ListGroupItem header="Received events count">{this.state.account.receivedEventsCount}</ListGroupItem>

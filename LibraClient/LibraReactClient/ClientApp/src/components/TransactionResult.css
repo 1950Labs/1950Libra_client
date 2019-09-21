@@ -35,6 +35,10 @@
     margin-bottom: 10px;
 }
 
+.libraIconTR{
+    width:0.7%;
+}
+
 .TestnetContainerTx {
     text-align: center;
 }
