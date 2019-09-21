@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './TransactionResult.css';
+import { ListGroup, ListGroupItem } from 'react-bootstrap';
 import withAuthorization from './WithAuthorization';
 
 class TransactionResult extends Component {
@@ -47,11 +48,19 @@ class TransactionResult extends Component {
                                 </div>
                             </div>
                             <div className="informationMessgae">This is a Testnet transaction that has no actual value</div>
-                            {
-                                this.state.transactionSeqNumber ?
-                                    <p> Sequence number: {this.state.transactionSeqNumber}</p>
-                                    : null
-                            }
+                            <ListGroup>
+                                <ListGroupItem header="Amount">{this.state.transactionResult.amount}</ListGroupItem>
+                                <ListGroupItem header="Source account">{this.state.transactionResult.sourceHex}</ListGroupItem>
+                                <ListGroupItem header="Recipient account">{this.state.transactionResult.recipientHex}</ListGroupItem>
+                                {
+                                    this.state.transactionSeqNumber ?
+                                        <ListGroupItem header="Sequence number">{this.state.transactionSeqNumber}</ListGroupItem>
+                                        : null
+                                }
+                               
+                            </ListGroup>
+
+                           
                         </div>
                         : null
                  }
