@@ -113,7 +113,10 @@ class NewTransaction extends Component {
                     })
                 } else {
                     this.setState({ transactionSuccess: false });
-                    state: { transactionStatus: 'failed' }
+                    this.props.history.push({
+                        pathname: routes.TRANSACTION_RESULT,
+                        state: { transactionResult: data, transactionStatus: 'failed' }
+                    })
                 }
             });
         event.preventDefault();

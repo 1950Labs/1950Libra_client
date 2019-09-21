@@ -12,11 +12,19 @@
 .transactionResult {
 }
 
-.transactionMessage {
+.transactionMessageSuccess {
     margin-top: -10px;
     color: green;
     font-weight: 600;
     text-align:center;
+    margin-bottom: 4px;
+}
+
+.transactionMessageError {
+    margin-top: -10px;
+    color: red;
+    font-weight: 600;
+    text-align: center;
     margin-bottom: 4px;
 }
 

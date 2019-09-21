@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LibraReactClient.Migrations
 {
     [DbContext(typeof(LibraContext))]
-    [Migration("20190904222845_InitialCreate")]
+    [Migration("20190921135344_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

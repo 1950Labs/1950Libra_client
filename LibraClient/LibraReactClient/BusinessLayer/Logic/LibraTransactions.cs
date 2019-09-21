@@ -44,7 +44,7 @@ namespace LibraReactClient.BusinessLayer.Logic
             UInt64 seqNum = account.SequenceNumber;
             string senderHex = hex.EncodeData(Sha3.Sha3256().ComputeHash(sender));
 
-            var rawTx = CreateRawTx(senderHex, seqNum, input.Recipient, Convert.ToUInt64(input.Amount * 1000000), 100000, 0);
+            var rawTx = CreateRawTx(senderHex, seqNum, input.Recipient, Convert.ToUInt64(input.Amount * 1000000), 160000, 0);
 
             Console.WriteLine($"RawTx: {Convert.ToBase64String(rawTx.ToByteArray())}");
 
@@ -75,14 +75,22 @@ namespace LibraReactClient.BusinessLayer.Logic
             SubmitTransactionResponse reply = client.SubmitTransaction(submitTxReq, new Metadata());
             Console.WriteLine($"Reply AcStatus {reply.AcStatus.Code}.");
             Types.RawTransaction resultTx = null;
-            try
+
+            if (reply.AcStatus.Code == AdmissionControlStatusCode.Accepted)
             {
-                Task.Delay(2000).Wait();
-                resultTx = GetTransaction(client, senderHex, seqNum);
+                try
+                {
+                    Task.Delay(2000).Wait();
+                    resultTx = GetTransaction(client, senderHex, seqNum);
+                }
+                catch (Exception excp)
+                {
+                    Console.WriteLine($"Exception Main. {excp.Message}");
+                }
             }
-            catch (Exception excp)
+            else
             {
-                Console.WriteLine($"Exception Main. {excp.Message}");
+                resultTx = new RawTransaction();
             }
 
             return resultTx;

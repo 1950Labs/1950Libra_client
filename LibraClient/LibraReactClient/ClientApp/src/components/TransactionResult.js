@@ -39,7 +39,7 @@ class TransactionResult extends Component {
                     this.state.transactionIcon ?
                         <div className="transactionResult">
                             <img className="transactionIcon" src={require("../images/" + this.state.transactionIcon)} alt="logo" />
-                            <div className="transactionMessage" >{this.state.transactionMessage}</div>
+                            <div className={this.state.transactionStatus === 'success' ? 'transactionMessageSuccess' : 'transactionMessageError'}>{this.state.transactionMessage}</div>
                             
                             <div className="MessageContainerTx">
                                 <div className="TestnetContainerTx">
