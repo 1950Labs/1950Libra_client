@@ -29,7 +29,7 @@ namespace LibraReactClient.Controllers
         // POST: api/Libra/SubmitTransaction
         [Authorize]
         [HttpPost("[action]")]
-        public RawTransaction SubmitTransaction([FromBody] SubmitTransactionIn request)
+        public SubmitTransactionOut SubmitTransaction([FromBody] SubmitTransactionIn request)
         {
             return TransactionsLogic.SubmitTransaction(request);
             

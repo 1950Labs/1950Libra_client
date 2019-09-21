@@ -24,9 +24,11 @@ namespace LibraReactClient.BusinessLayer.Logic
         
         
 
-        public RawTransaction SubmitTransaction(SubmitTransactionIn input)
+        public SubmitTransactionOut SubmitTransaction(SubmitTransactionIn input)
         {
             var client = new AdmissionControlEntity().Client;
+
+            SubmitTransactionOut result = new SubmitTransactionOut();
 
             LibraAccounts libraAccountsComponent = new LibraAccounts();
 
@@ -74,14 +76,19 @@ namespace LibraReactClient.BusinessLayer.Logic
 
             SubmitTransactionResponse reply = client.SubmitTransaction(submitTxReq, new Metadata());
             Console.WriteLine($"Reply AcStatus {reply.AcStatus.Code}.");
-            Types.RawTransaction resultTx = null;
+            result.Transaction = null;
+
+            result.ACStatus = reply.AcStatus.Code.ToString();
+            result.SourceHex = senderHex;
+            result.RecipientHex = input.Recipient;
+            result.Amount = input.Amount;
 
             if (reply.AcStatus.Code == AdmissionControlStatusCode.Accepted)
             {
                 try
                 {
                     Task.Delay(2000).Wait();
-                    resultTx = GetTransaction(client, senderHex, seqNum);
+                    result.Transaction = GetTransaction(client, senderHex, seqNum);
                 }
                 catch (Exception excp)
                 {
@@ -90,10 +97,10 @@ namespace LibraReactClient.BusinessLayer.Logic
             }
             else
             {
-                resultTx = new RawTransaction();
+                result.Transaction = new RawTransaction();
             }
 
-            return resultTx;
+            return result;
         }
 
         private Types.RawTransaction CreateRawTx(string senderHex, UInt64 seqNum, string receipientHex, UInt64 recipientAmount, UInt64 maxGasAmount, UInt64 maxGasUnitPrice)
