@@ -50,7 +50,7 @@ namespace LibraReactClient.BusinessLayer.Logic
 
             Console.WriteLine($"RawTx: {Convert.ToBase64String(rawTx.ToByteArray())}");
 
-            Types.SignedTransaction signedTx = new Types.SignedTransaction();
+            SignedTransaction signedTx = ImmutableSignedTransaction.
             signedTx.SenderPublicKey = Google.Protobuf.ByteString.CopyFrom(sender);
             signedTx.RawTxnBytes = rawTx.ToByteString();
 
