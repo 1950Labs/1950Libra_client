@@ -99,7 +99,6 @@ namespace LibraClient
             #region ACCESS PATH
 
             // TESTING BYTE ARRAY
-            // TESTING BYTE ARRAY
             byte[] Path = Encoding.UTF8.GetBytes("01217da6c6b3e19f18");
 
             AccessPathLCS AccessPath = new AccessPathLCS()
