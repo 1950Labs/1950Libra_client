@@ -17,21 +17,26 @@ namespace LibraClient
 {
     class Program
     {
-
-        const string LIBRA_HASH_SUFFIX = "@@$$LIBRA$$@@";
-        const string RAWTX_HASH_SALT = "RawTransaction";
         static void Main(string[] args)
         {
-            AddressLCS addressLCS = new AddressLCS()
+            #region ADDRESS
+
+            AddressLCS AddressLCS = new AddressLCS()
             {
                 Length = (uint)32,
                 Value = "ca820bf9305eb97d0d784f71b3955457fbf6911f5300ceaa5d7e8621529eae19"
             };
 
-            byte[] addressByteLcs = LCSCore.LCSDeserialization(addressLCS);
+            byte[] AddressByteLcs = LCSCore.LCSSerialization(AddressLCS);
 
-            Console.WriteLine("ADDRESS LCS - " + addressByteLcs.ByteArryToString());
+            Console.WriteLine("ADDRESS SERIALIZED- " + AddressByteLcs.ByteArryToString());
+            Console.WriteLine("ADDRESS DESERIALIZED - " + LCSCore.LCSDeserialization<AddressLCS>(AddressByteLcs));
 
+            #endregion
+
+            #region TRANSACTION ARGUMENTS 
+
+            //U64
 
             TransactionArgumentLCS U64Argument = new TransactionArgumentLCS()
             {
@@ -39,10 +44,12 @@ namespace LibraClient
                 ArgType = (uint)TransactionArgumentLCSEnum.U64
             };
 
-            byte[] U64ArgumentByteLcs = LCSCore.LCSDeserialization(U64Argument);
+            byte[] U64ArgumentByteLcs = LCSCore.LCSSerialization(U64Argument);
 
-            Console.WriteLine("U64 ARGUMENT LCS - " + U64ArgumentByteLcs.ByteArryToString());
+            Console.WriteLine("\nU64 ARGUMENT SERIALIZED - " + U64ArgumentByteLcs.ByteArryToString());
+            Console.WriteLine("U64 ARGUMENT DESERIALIZED - " + LCSCore.LCSDeserialization<TransactionArgumentLCS>(U64ArgumentByteLcs));
 
+            //STRING
 
             TransactionArgumentLCS StringArgument = new TransactionArgumentLCS()
             {
@@ -51,144 +58,67 @@ namespace LibraClient
 
             };
 
-            byte[] StringArgumentByteLcs = LCSCore.LCSDeserialization(StringArgument);
+            byte[] StringArgumentByteLcs = LCSCore.LCSSerialization(StringArgument);
 
-            Console.WriteLine("STRING ARGUMENT LCS - " + StringArgumentByteLcs.ByteArryToString());
+            Console.WriteLine("\nSTRING ARGUMENT SERIALIZED- " + StringArgumentByteLcs.ByteArryToString());
+            Console.WriteLine("nSTRING ARGUMENT DESERIALIZED - " + LCSCore.LCSDeserialization<TransactionArgumentLCS>(StringArgumentByteLcs));
 
-            
+            //ADDRESS
 
-            //Channel channel = new Channel("ac.testnet.libra.org:8000", ChannelCredentials.Insecure);
-            //var client = new AdmissionControl.AdmissionControl.AdmissionControlClient(channel);
+            TransactionArgumentLCS AddressArgument = new TransactionArgumentLCS()
+            {
+                Address = new AddressLCS{
+                    Value = "2c25991785343b23ae073a50e5fd809a2cd867526b3c1db2b0bf5d1924c693ed",
+                    Length = 32
+                },
 
-            //HexEncoder hex = new HexEncoder();
+                ArgType = (uint)TransactionArgumentLCSEnum.Address
+            };
 
-            //SharedSecret sharedSecret = SharedSecret.Import(Encoding.UTF8.GetBytes("newdummy"));
-            //HkdfSha512 kdf = new HkdfSha512();
-            //var key = kdf.DeriveKey(sharedSecret, null, null, Ed25519.Ed25519);
-            //var sender = key.PublicKey.Export(KeyBlobFormat.RawPublicKey);
+            byte[] AddressArgumentByteLcs = LCSCore.LCSSerialization(AddressArgument);
 
-            //UInt64 seqNum = 0;
-            //string senderHex = hex.EncodeData(Sha3.Sha3256().ComputeHash(sender));
+            Console.WriteLine("\nADDRESS ARGUMENT LCS - " + AddressArgumentByteLcs.ByteArryToString());
+            Console.WriteLine("ADDRESS ARGUMENT DESERIALIZED - " + LCSCore.LCSDeserialization<TransactionArgumentLCS>(AddressArgumentByteLcs));
 
-            //var rawTx = CreateRawTx(senderHex, seqNum, "4ba2555fd146e79e37fda7a2f30dc1b4f3d9228aa48b230dbab0a18d407f2f9b", 0xffffUL, 1000UL, 10000UL);
+            //BYTE ARRAY
 
-            //Console.WriteLine($"RawTx: {Convert.ToBase64String(rawTx.ToByteArray())}");
+            TransactionArgumentLCS ByteArrayArgument = new TransactionArgumentLCS()
+            {
+                // TESTING BYTE ARRAY
+                ByteArray = Encoding.UTF8.GetBytes("01217da6c6b3e19f18"),
+                ArgType = (uint)TransactionArgumentLCSEnum.ByteArray
+            };
 
-            //Types.SignedTransaction signedTx = new Types.SignedTransaction();
-            //signedTx.SenderPublicKey = Google.Protobuf.ByteString.CopyFrom(sender);
-            //signedTx.RawTxnBytes = rawTx.ToByteString();
+            byte[] ByteArrayArgumentByteLcs = LCSCore.LCSSerialization(ByteArrayArgument);
 
-            //var seed = Encoding.ASCII.GetBytes(RAWTX_HASH_SALT + LIBRA_HASH_SUFFIX);
-            //var seedHash = Sha3.Sha3256().ComputeHash(seed);
-            //List<byte> hashInput = new List<byte>();
-            //hashInput.AddRange(seedHash);
-            //hashInput.AddRange(signedTx.RawTxnBytes.ToArray());
-            //var hash = Sha3.Sha3256().ComputeHash(hashInput.ToArray());
+            Console.WriteLine("\nBYTE ARRAY ARGUMENT SERIALIZED - " + ByteArrayArgumentByteLcs.ByteArryToString());
+            Console.WriteLine("BYTE ARRAY ARGUMENT DESERIALIZED - " + LCSCore.LCSDeserialization<TransactionArgumentLCS>(ByteArrayArgumentByteLcs));
 
-            //Console.WriteLine($"Raw tx hash {hex.EncodeData(hash)}.");
+            #endregion
 
-            //var sig = NSec.Cryptography.Ed25519.Ed25519.Sign(key, hash);
-            //signedTx.SenderSignature = Google.Protobuf.ByteString.CopyFrom(sig);
+            #region ACCESS PATH
 
-            //Console.WriteLine($"Signature {hex.EncodeData(sig)}.");
+            // TESTING BYTE ARRAY
+            // TESTING BYTE ARRAY
+            byte[] Path = Encoding.UTF8.GetBytes("01217da6c6b3e19f18");
 
-            //AdmissionControl.SubmitTransactionRequest submitTxReq = new AdmissionControl.SubmitTransactionRequest();
-            //submitTxReq.SignedTxn = signedTx;
+            AccessPathLCS AccessPath = new AccessPathLCS()
+            {
+                Address = new AddressLCS
+                {
+                    Value = "9a1ad09742d1ffc62e659e9a7797808b206f956f131d07509449c01ad8220ad4",
+                    Length = 32
+                },
+                Path = Path
+            };
 
-            //Console.WriteLine($"Submitting signed tx for {senderHex} and seqnum {seqNum}.");
+            byte[] AccessPathByteLcs = LCSCore.LCSSerialization(AccessPath);
 
+            Console.WriteLine("\nACCESS PATH SERIALIZED - " + AccessPathByteLcs.ByteArryToString());
+            Console.WriteLine("ACCESS PATH DESERIALIZED - " + LCSCore.LCSDeserialization<AccessPathLCS>(AccessPathByteLcs));
 
-            //SubmitTransactionResponse reply = client.SubmitTransaction(submitTxReq);
-            //Console.WriteLine($"Reply AcStatus {reply.AcStatus.Code}.");
-
-            //try
-            //{
-            //    Task.Delay(5000).Wait();
-            //    GetTransaction(client, senderHex, seqNum);
-            //    //GetTransaction(client, "4ba2555fd146e79e37fda7a2f30dc1b4f3d9228aa48b230dbab0a18d407f2f9b", 1);
-            //}
-            //catch (Exception excp)
-            //{
-            //    Console.WriteLine($"Exception Main. {excp.Message}");
-            //}
+            #endregion
         }
-
-        //private static Types.RawTransaction CreateRawTx(string senderHex, UInt64 seqNum, string receipientHex, UInt64 recipientAmount, UInt64 maxGasAmount, UInt64 maxGasUnitPrice)
-        //{
-        //    HexEncoder hex = new HexEncoder();
-
-        //    Types.RawTransaction rawTx = new Types.RawTransaction();
-        //    rawTx.SenderAccount = Google.Protobuf.ByteString.CopyFrom(hex.DecodeData(senderHex));
-        //    rawTx.SequenceNumber = seqNum;
-        //    rawTx.Program = new Types.Program();
-        //    rawTx.Program.Code = Google.Protobuf.ByteString.CopyFrom(Convert.FromBase64String("TElCUkFWTQoBAAcBSgAAAAQAAAADTgAAAAYAAAAMVAAAAAYAAAANWgAAAAYAAAAFYAAAACkAAAAEiQAAACAAAAAHqQAAAA4AAAAAAAABAAIAAQMAAgACBAIAAwADAgQCBjxTRUxGPgxMaWJyYUFjY291bnQEbWFpbg9wYXlfZnJvbV9zZW5kZXIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAgEEAAwADAERAQAC"));
-
-        //    var recipientArg = new Types.TransactionArgument { Type = Types.TransactionArgument.Types.ArgType.Address };
-        //    recipientArg.Data = Google.Protobuf.ByteString.CopyFrom(hex.DecodeData(receipientHex));
-        //    rawTx.Program.Arguments.Add(recipientArg);
-
-        //    var amountArg = new Types.TransactionArgument { Type = Types.TransactionArgument.Types.ArgType.U64 };
-        //    amountArg.Data = Google.Protobuf.ByteString.CopyFrom(BitConverter.GetBytes(recipientAmount));
-        //    rawTx.Program.Arguments.Add(amountArg);
-
-        //    rawTx.MaxGasAmount = maxGasAmount;
-        //    rawTx.GasUnitPrice = maxGasUnitPrice;
-        //    rawTx.ExpirationTime = (ulong)DateTimeOffset.UtcNow.AddSeconds(60).ToUnixTimeSeconds();
-        //    return rawTx;
-        //}
-
-
-        //private static void GetTransaction(AdmissionControl.AdmissionControl.AdmissionControlClient client, string accountHex, UInt64 seqNum)
-        //{
-        //    Console.WriteLine($"GetTransaction for {accountHex} and seqnum {seqNum}.");
-
-        //    HexEncoder hex = new HexEncoder();
-
-        //    Types.UpdateToLatestLedgerRequest updToLatestLedgerReq = new Types.UpdateToLatestLedgerRequest();
-        //    var getTxReq = new Types.GetAccountTransactionBySequenceNumberRequest();
-        //    getTxReq.SequenceNumber = seqNum;
-        //    getTxReq.Account = Google.Protobuf.ByteString.CopyFrom(hex.DecodeData(accountHex));
-        //    Types.RequestItem reqItem = new Types.RequestItem();
-        //    reqItem.GetAccountTransactionBySequenceNumberRequest = getTxReq;
-        //    updToLatestLedgerReq.RequestedItems.Add(reqItem);
-        //    var reply = client.UpdateToLatestLedger(updToLatestLedgerReq);
-
-        //    if (reply?.ResponseItems?.Count == 1)
-        //    {
-        //        var resp = reply.ResponseItems[0].GetAccountTransactionBySequenceNumberResponse;
-
-        //        if (resp.SignedTransactionWithProof == null)
-        //        {
-        //            Console.WriteLine("GetTransaction request did not return a signed transaction.");
-        //        }
-        //        else
-        //        {
-        //            var signedTx = resp.SignedTransactionWithProof;
-
-        //            Console.WriteLine($"Sender {hex.EncodeData(signedTx.SignedTransaction.SenderPublicKey.ToByteArray())}.");
-        //            Console.WriteLine($"RawTxnBytes {hex.EncodeData(signedTx.SignedTransaction.RawTxnBytes.ToByteArray())}");
-
-        //            Types.RawTransaction rawTx = Types.RawTransaction.Parser.ParseFrom(signedTx.SignedTransaction.RawTxnBytes);
-
-        //            Console.WriteLine($"SequenceNumber {rawTx.SequenceNumber}.");
-        //            Console.WriteLine($"MaxGasAmount {rawTx.MaxGasAmount}.");
-        //            Console.WriteLine($"GasUnitPrice {rawTx.GasUnitPrice}.");
-        //            Console.WriteLine($"ExpirationTime {rawTx.ExpirationTime}.");
-
-        //            var byteCode = rawTx.Program.Code.ToByteArray();
-
-        //            Console.WriteLine($"Program.Code base64 {Convert.ToBase64String(byteCode)}.");
-
-        //            SHA512 sha512 = SHA512.Create();
-        //            var byteCodeHash = hex.EncodeData(sha512.ComputeHash(byteCode));
-        //            Console.WriteLine($"Program.Code hash {byteCodeHash}.");
-        //        }
-        //    }
-        //    else
-        //    {
-        //        Console.WriteLine("GetTransaction did not return a result.");
-        //    }
-        //}
     }
 }
 

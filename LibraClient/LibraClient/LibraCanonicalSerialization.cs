@@ -7,272 +7,122 @@ using System.Text;
 
 namespace LibraClient
 {
-    public class LibraCanonicalSerialization
+    public class LibraCanonicalDeserialization
     {
-        const int ADDRESS_LENGTH = 32;
-
-        public AccountResourceLCS GetAccountResource(byte[] source, ref int cursor)
+        public byte[] U64ToByte(ulong source)
         {
-            var retVal = new AccountResourceLCS();
-
-            retVal.AuthenticationKey = source.LCSerialization<AddressLCS>(ref cursor);
-            retVal.Balance = Read_u64(source, ref cursor);
-            retVal.DelegatedWithdrawalCapability = source.LCSerialization<bool>(ref cursor);
-            retVal.ReceivedEvents = source.LCSerialization<byte[]>(ref cursor);
-            retVal.SentEvents = source.LCSerialization<byte[]>(ref cursor);
-            retVal.SequenceNumber = Read_u64(source, ref cursor);
-
-            return retVal;
+            return BitConverter.GetBytes(source);
         }
 
-        public RawTransactionLCS GetRawTransaction(byte[] source, ref int cursor)
+        public byte[] AddressToByte(AddressLCS source)
         {
-            var retVal = new RawTransactionLCS();
-
-            retVal.Sender = source.LCSerialization<AddressLCS>(ref cursor);
-            retVal.SequenceNumber = source.LCSerialization<ulong>(ref cursor);
-            retVal.TransactionPayload =
-                source.LCSerialization<TransactionPayloadLCS>(ref cursor);
-            retVal.MaxGasAmount = Read_u64(source, ref cursor);
-            retVal.GasUnitPrice = Read_u64(source, ref cursor);
-            retVal.ExpirationTime = Read_u64(source, ref cursor);
-
-            return retVal;
+            var len = U32ToByte((uint)source.Length);
+            var data = source.Value.HexStringToByteArray();
+            return len.Concat(data).ToArray();
         }
 
-        public WriteOpLCS GetWriteOp(byte[] source, ref int cursor)
+        public byte[] U32ToByte(uint source)
         {
-            var retVal = new WriteOpLCS();
-            retVal.WriteOpType = source.LCSerialization<uint>(ref cursor);
-
-            if (retVal.WriteOpTypeEnum == WriteOpLCSEnum.Value)
-                retVal.Value = source.LCSerialization<byte[]>(ref cursor);
-
-            return retVal;
+            return BitConverter.GetBytes(source);
         }
 
-        public AccessPathLCS GetAccessPath(byte[] source, ref int cursor)
+        public byte[] StringToByte(string source)
         {
-            var retVal = new AccessPathLCS();
-
-            retVal.Address = source.LCSerialization<AddressLCS>(ref cursor);
-            retVal.Path = source.LCSerialization<byte[]>(ref cursor);
-
-            return retVal;
+            var data = Encoding.UTF8.GetBytes(source);
+            var len = U32ToByte((uint)data.Length);
+            return len.Concat(data).ToArray();
         }
 
-        public AccountEventLCS GetAccountEvent(byte[] source, ref int cursor)
+        public byte[] ByteArrToByte(byte[] source)
         {
-            var retVal = new AccountEventLCS();
-
-            retVal.Amount = source.LCSerialization<ulong>(ref cursor);
-            retVal.Account = source.LCSerialization<byte[]>(ref cursor)
-                .ByteArryToString();
-
-            return retVal;
+            var len = U32ToByte((uint)source.Length);
+            var data = source;
+            return len.Concat(data).ToArray();
         }
 
-        public WriteSetLCS GetWriteSet(byte[] source, ref int cursor)
+        public byte[] ListByteArrToByte(List<byte[]> source)
         {
-            var retVal = new WriteSetLCS();
-            retVal.WriteSet = new Dictionary<AccessPathLCS, WriteOpLCS>();
-            retVal.Length = Read_u32(source, ref cursor);
-
-            for (int i = 0; i < retVal.Length; i++)
+            List<byte> retArr = new List<byte>();
+            var len = U32ToByte((uint)source.Count);
+            retArr = retArr.Concat(len).ToList();
+            foreach (var item in source)
             {
-                var key = source.LCSerialization<AccessPathLCS>(ref cursor);
-                var value = source.LCSerialization<WriteOpLCS>(ref cursor);
-
-                retVal.WriteSet.Add(key, value);
+                var localLen = U32ToByte((uint)item.Length);
+                retArr = retArr.Concat(localLen).ToList();
+                retArr = retArr.Concat(item).ToList();
             }
-            return retVal;
+            return retArr.ToArray();
         }
 
-        public bool GetBool(byte[] source, ref int cursor)
+        public byte[] BoolToByte(bool source)
         {
-            return Convert.ToBoolean(Read_u8(source, ref cursor, 1).FirstOrDefault());
+            return BitConverter.GetBytes(source);
         }
 
-        public string GetString(byte[] source, ref int cursor)
+        public byte[] TransactionPayloadToByte(TransactionPayloadLCS source)
         {
-            var length = Read_u32(source, ref cursor);
-            return Read_String(source, ref cursor, (int)length);
+            List<byte> retArr = new List<byte>();
+            //var len = U32ToByte((uint)source);
+
+            return retArr.ToArray();
         }
 
-        public IEnumerable<byte[]> GetListByteArrays(byte[] source, ref int cursor)
+        public byte[] ProgramToByte(ProgramLCS source)
         {
-            List<byte[]> retVal = new List<byte[]>();
-            var length = Read_u32(source, ref cursor);
-
-            for (int i = 0; i < length; i++)
-                retVal.Add(source.LCSerialization<byte[]>(ref cursor));
-
-            return retVal;
+            throw new NotImplementedException();
         }
 
-        public byte[] GetByteArray(byte[] source, ref int cursor)
+        public byte[] ScriptToByte(ScriptLCS source)
         {
-            var length = Read_u32(source, ref cursor);
-
-            var retVal = Read_u8(source, ref cursor, (int)length)
-                .ToArray();
-
-            return retVal;
+            throw new NotImplementedException();
         }
 
-        public byte GetByte(byte[] source, ref int cursor)
+        public byte[] ModuleToByte(ModuleLCS source)
         {
-            return Read_u8(source, ref cursor, 1).FirstOrDefault();
+            throw new NotImplementedException();
         }
 
-        public AddressLCS GetAddress(byte[] source, ref int cursor)
+        public byte[] TransactionArgumentToByte(TransactionArgumentLCS source)
         {
-            var retVal = new AddressLCS();
-            retVal.Length = Read_u32(source, ref cursor);
+            var argType = U32ToByte(source.ArgType);
 
-            retVal.ValueByte = Read_u8(source, ref cursor, (int)retVal.Length)
-                .ToArray();
-            retVal.Value = retVal.ValueByte
-                .ByteArryToString();
-
-            return retVal;
-        }
-
-        public ulong GetU64(byte[] source, ref int cursor)
-        {
-            return Read_u64(source, ref cursor);
-        }
-
-        public uint GetU32(byte[] source, ref int cursor)
-        {
-            return Read_u32(source, ref cursor);
-        }
-
-        public TransactionPayloadLCS GetTransactionPayload(byte[] source, ref int cursor)
-        {
-            var retVal = new TransactionPayloadLCS();
-            retVal.PayloadType = Read_u32(source, ref cursor);
-
-            if (retVal.PayloadTypeEnum == TransactionPayloadLCSEnum.Program)
-                retVal.Program = source.LCSerialization<ProgramLCS>(ref cursor);
-            else if (retVal.PayloadTypeEnum == TransactionPayloadLCSEnum.WriteSet)
-                retVal.WriteSet = source.LCSerialization<WriteSetLCS>(ref cursor);
-            else if (retVal.PayloadTypeEnum == TransactionPayloadLCSEnum.Script)
-                retVal.Script = source.LCSerialization<ScriptLCS>(ref cursor);
-            else if (retVal.PayloadTypeEnum == TransactionPayloadLCSEnum.Module)
-                retVal.Module = source.LCSerialization<ModuleLCS>(ref cursor);
-
-            return retVal;
-        }
-
-        public ProgramLCS GetProgram(byte[] source, ref int cursor)
-        {
-            var retVal = new ProgramLCS();
-            //struct Program
-            // {
-            //  code: Vec<u8>, // Variable length byte array
-            //  args: Vec<TransactionArgument>, // Variable length array of TransactionArguments
-            //  modules: Vec<Vec<u8>>, // Variable length array of variable length byte arrays
-            // }
-            retVal.Code = source.LCSerialization<byte[]>(ref cursor);
-            retVal.TransactionArguments =
-                source.LCSerialization<List<TransactionArgumentLCS>>(ref cursor);
-            retVal.Modules = source.LCSerialization<List<byte[]>>(ref cursor);
-
-            return retVal;
-        }
-        public ScriptLCS GetScript(byte[] source, ref int cursor)
-        {
-            var retVal = new ScriptLCS();
-            retVal.Code = source.LCSerialization<byte[]>(ref cursor);
-            retVal.TransactionArguments =
-                source.LCSerialization<List<TransactionArgumentLCS>>(ref cursor);
-
-            return retVal;
-        }
-        public ModuleLCS GetModule(byte[] source, ref int cursor)
-        {
-            var retVal = new ModuleLCS();
-            retVal.Code = source.LCSerialization<byte[]>(ref cursor);
-            return retVal;
-        }
-
-        public TransactionArgumentLCS GetTransactionArgument(byte[] source,
-            ref int cursor)
-        {
-            var retVal = new TransactionArgumentLCS();
-            retVal.ArgType = Read_u32(source, ref cursor);
-
-            if (retVal.ArgTypeEnum == TransactionArgumentLCSEnum.U64)
+            byte[] data;
+            switch (source.ArgTypeEnum)
             {
-                retVal.U64 = Read_u64(source, ref cursor);
-            }
-            else if (retVal.ArgTypeEnum == TransactionArgumentLCSEnum.Address)
-            {
-                retVal.Address = source.LCSerialization<AddressLCS>(ref cursor);
-            }
-            else if (retVal.ArgTypeEnum == TransactionArgumentLCSEnum.ByteArray)
-            {
-                retVal.ByteArray = source.LCSerialization<byte[]>(ref cursor);
-            }
-            else if (retVal.ArgTypeEnum == TransactionArgumentLCSEnum.String)
-            {
-                retVal.String = source.LCSerialization<string>(ref cursor);
+                case TransactionArgumentLCSEnum.Address:
+
+                    data = AddressToByte(source.Address);
+                    return argType.Concat(data).ToArray();
+
+                case TransactionArgumentLCSEnum.ByteArray:
+
+                    data = ByteArrToByte(source.ByteArray);
+                    return argType.Concat(data).ToArray();
+
+                case TransactionArgumentLCSEnum.String:
+
+                    data = StringToByte(source.String);
+                    return argType.Concat(data).ToArray();
+
+                case TransactionArgumentLCSEnum.U64:
+
+                    data = BitConverter.GetBytes(source.U64);
+                    return argType.Concat(data).ToArray();
             }
 
-            return retVal;
+            throw new InvalidOperationException();
         }
 
-        public IEnumerable<TransactionArgumentLCS> GetTransactionArguments(
-            byte[] source, ref int cursor)
+        public byte[] AccessPathToByte(AccessPathLCS source)
         {
-            var retVal = new List<TransactionArgumentLCS>();
-            var length = Read_u32(source, ref cursor);
-
-            for (int i = 0; i < length; i++)
-                retVal.Add(source.LCSerialization<TransactionArgumentLCS>(ref cursor));
-
-            return retVal;
+            byte[] addressData = AddressToByte(source.Address);
+            
+            return addressData.Concat(ByteArrToByte(source.Path)).ToArray();
         }
-        #region Helpers
 
-        public IEnumerable<byte> Read_u8(IEnumerable<byte> source,
-          ref int localCursor, int count)
+        public byte[] ListTransactionArgumentToByte(List<TransactionArgumentLCS> source)
         {
-            var retArr = source.Skip(localCursor).Take(count);
-            localCursor += count;
-            return retArr;
+            throw new NotImplementedException();
         }
-
-        public string Read_String(IEnumerable<byte> source,
-         ref int localCursor, int count)
-        {
-            var retArr = Read_u8(source, ref localCursor, count);
-            return Encoding.UTF8.GetString(retArr.ToArray());
-        }
-
-        public ushort Read_u16(IEnumerable<byte> source,
-          ref int localCursor)
-        {
-            var bytes = Read_u8(source, ref localCursor, 2);
-
-            return BitConverter.ToUInt16(bytes.ToArray());
-        }
-
-        public uint Read_u32(IEnumerable<byte> source,
-         ref int localCursor)
-        {
-            var bytes = Read_u8(source, ref localCursor, 4);
-            return BitConverter.ToUInt32(bytes.ToArray());
-        }
-
-        public ulong Read_u64(IEnumerable<byte> source,
-         ref int localCursor)
-        {
-            var bytes = Read_u8(source, ref localCursor, 8);
-            return BitConverter.ToUInt64(bytes.ToArray());
-        }
-        #endregion
-
     }
 }

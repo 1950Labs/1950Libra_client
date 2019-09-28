@@ -12,13 +12,13 @@ namespace LibraClient
         static LibraCanonicalSerialization _serialization =
             new LibraCanonicalSerialization();
 
-        public static T LCSerialization<T>(this byte[] source)
+        public static T LCSDeserialization<T>(this byte[] source)
         {
             int cursor = 0;
-            return source.LCSerialization<T>(ref cursor);
+            return source.LCSDeserialization<T>(ref cursor);
         }
 
-        public static T LCSerialization<T>(this byte[] source, ref int cursor)
+        public static T LCSDeserialization<T>(this byte[] source, ref int cursor)
         {
             var type = typeof(T);
             if (type == typeof(AddressLCS))
@@ -130,7 +130,7 @@ namespace LibraClient
         /// Libra Canonical Deserialization
         /// </summary>
         /// <returns></returns>
-        public static byte[] LCSDeserialization(object source)
+        public static byte[] LCSSerialization(object source)
         {
             var type = source.GetType();
             if (type == typeof(AddressLCS))
@@ -191,6 +191,12 @@ namespace LibraClient
                 return _deserialization.ListTransactionArgumentToByte(
                    (List<TransactionArgumentLCS>)source);
             }
+            else if (type == typeof(AccessPathLCS))
+            {
+                return _deserialization.AccessPathToByte(
+                   (AccessPathLCS)source);
+            }
+
 
             return null;
         }
