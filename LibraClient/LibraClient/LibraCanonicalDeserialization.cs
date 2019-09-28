@@ -40,6 +40,14 @@ namespace LibraClient
             return retVal;
         }
 
+        public SignedTransactionLCS GetSignedTransaction(byte[] source, ref int cursor)
+        {
+            var retVal = new SignedTransactionLCS();
+
+
+            return retVal;
+        }
+
         public WriteOpLCS GetWriteOp(byte[] source, ref int cursor)
         {
             var retVal = new WriteOpLCS();

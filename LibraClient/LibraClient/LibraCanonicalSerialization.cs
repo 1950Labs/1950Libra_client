@@ -62,24 +62,59 @@ namespace LibraClient
         public byte[] TransactionPayloadToByte(TransactionPayloadLCS source)
         {
             List<byte> retArr = new List<byte>();
-            //var len = U32ToByte((uint)source);
+            var payloadType = U32ToByte(source.PayloadType);
+            retArr = retArr.Concat(payloadType).ToList();
+
+            if (source.PayloadTypeEnum == TransactionPayloadLCSEnum.Program)
+            {
+                retArr = retArr.Concat(ProgramToByte(source.Program)).ToList();
+            }
+            else if (source.PayloadTypeEnum == TransactionPayloadLCSEnum.WriteSet)
+            {
+                throw new Exception("WriteSet Not Supported.");
+            }
+            else if (source.PayloadTypeEnum == TransactionPayloadLCSEnum.Script)
+            {
+                retArr = retArr.Concat(ScriptToByte(source.Script)).ToList();
+            }
+            else if (source.PayloadTypeEnum == TransactionPayloadLCSEnum.Module)
+            {
+                retArr = retArr.Concat(ModuleToByte(source.Module)).ToList();
+            }
 
             return retArr.ToArray();
         }
 
         public byte[] ProgramToByte(ProgramLCS source)
         {
-            throw new NotImplementedException();
+            List<byte> retArr = new List<byte>();
+            var code = ByteArrToByte(source.Code);
+            retArr = retArr.Concat(code).ToList();
+
+            var transactionArg = ListTransactionArgumentToByte(source.TransactionArguments.ToList());
+            retArr = retArr.Concat(transactionArg).ToList();
+
+            var modules = ListByteArrToByte(source.Modules);
+            retArr = retArr.Concat(modules).ToList();
+            return retArr.ToArray();
         }
 
         public byte[] ScriptToByte(ScriptLCS source)
         {
-            throw new NotImplementedException();
+            List<byte> retArr = new List<byte>();
+            var code = LCSCore.LCSSerialization(source.Code);
+            retArr = retArr.Concat(code).ToList();
+            var transactionArg = LCSCore.LCSSerialization(source.TransactionArguments);
+            retArr = retArr.Concat(transactionArg).ToList();
+            return retArr.ToArray();
         }
 
         public byte[] ModuleToByte(ModuleLCS source)
         {
-            throw new NotImplementedException();
+            List<byte> retArr = new List<byte>();
+            var code = LCSCore.LCSSerialization(source.Code);
+            retArr = retArr.Concat(code).ToList();
+            return retArr.ToArray();
         }
 
         public byte[] TransactionArgumentToByte(TransactionArgumentLCS source)
@@ -122,7 +157,39 @@ namespace LibraClient
 
         public byte[] ListTransactionArgumentToByte(List<TransactionArgumentLCS> source)
         {
-            throw new NotImplementedException();
+            List<byte> retArr = new List<byte>();
+            var len = U32ToByte((uint)source.Count);
+            retArr = retArr.Concat(len).ToList();
+            foreach (var item in source)
+            {
+                var arg = TransactionArgumentToByte(item);
+                retArr = retArr.Concat(arg).ToList();
+            }
+            return retArr.ToArray();
+        }
+
+        public byte[] RawTransactionToByte(RawTransactionLCS source)
+        {
+            List<byte> retArr = new List<byte>();
+            var sender = AddressToByte(source.Sender);
+            retArr = retArr.Concat(sender).ToList();
+
+            var sn = U64ToByte(source.SequenceNumber);
+            retArr = retArr.Concat(sn).ToList();
+
+            var payload = TransactionPayloadToByte(source.TransactionPayload);
+            retArr = retArr.Concat(payload).ToList();
+
+            var maxGasAmount = U64ToByte(source.MaxGasAmount);
+            retArr = retArr.Concat(maxGasAmount).ToList();
+
+            var gasUnitPrice = U64ToByte(source.GasUnitPrice);
+            retArr = retArr.Concat(gasUnitPrice).ToList();
+
+            var expirationTime = U64ToByte(source.ExpirationTime);
+            retArr = retArr.Concat(expirationTime).ToList();
+
+            return retArr.ToArray();
         }
     }
 }

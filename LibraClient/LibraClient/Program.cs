@@ -12,111 +12,131 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Types;
 
 namespace LibraClient
 {
     class Program
     {
+
+        const string LIBRA_HASH_SUFFIX = "@@$$LIBRA$$@@";
+        const string RAWTX_HASH_SALT = "RawTransaction";
+
         static void Main(string[] args)
         {
-            #region ADDRESS
+            Channel channel = new Channel("ac.testnet.libra.org:8000", ChannelCredentials.Insecure);
+            var client = new AdmissionControl.AdmissionControl.AdmissionControlClient(channel);
 
-            AddressLCS AddressLCS = new AddressLCS()
+            HexEncoder hex = new HexEncoder();
+
+            SharedSecret sharedSecret = SharedSecret.Import(Encoding.UTF8.GetBytes("newdummy"));
+            HkdfSha512 kdf = new HkdfSha512();
+            var key = kdf.DeriveKey(sharedSecret, null, null, Ed25519.Ed25519);
+            var sender = key.PublicKey.Export(KeyBlobFormat.RawPublicKey);
+
+            UInt64 seqNum = 9;
+            string senderHex = hex.EncodeData(Sha3.Sha3256().ComputeHash(sender));
+
+            uint amount = 10000000;
+            string reciver = "4ba2555fd146e79e37fda7a2f30dc1b4f3d9228aa48b230dbab0a18d407f2f9b";
+
+            RawTransactionLCS rawTr = new RawTransactionLCS()
             {
-                Length = (uint)32,
-                Value = "ca820bf9305eb97d0d784f71b3955457fbf6911f5300ceaa5d7e8621529eae19"
+                ExpirationTime = (ulong)DateTimeOffset.UtcNow.AddSeconds(60)
+                .ToUnixTimeSeconds(),
+                GasUnitPrice = 0,
+                MaxGasAmount = 100000,
+                SequenceNumber = seqNum
             };
 
-            byte[] AddressByteLcs = LCSCore.LCSSerialization(AddressLCS);
+            rawTr.TransactionPayload = new TransactionPayloadLCS();
 
-            Console.WriteLine("ADDRESS SERIALIZED- " + AddressByteLcs.ByteArryToString());
-            Console.WriteLine("ADDRESS DESERIALIZED - " + LCSCore.LCSDeserialization<AddressLCS>(AddressByteLcs));
-
-            #endregion
-
-            #region TRANSACTION ARGUMENTS 
-
-            //U64
-
-            TransactionArgumentLCS U64Argument = new TransactionArgumentLCS()
+            rawTr.TransactionPayload.PayloadType = (uint)TransactionPayloadLCSEnum.Script;
+            rawTr.TransactionPayload.Script = new ScriptLCS()
             {
-                U64 = 9213671392124193148,
-                ArgType = (uint)TransactionArgumentLCSEnum.U64
+                Code = Utilities.PtPTrxBytecode,
+                TransactionArguments = new List<TransactionArgumentLCS>() {
+                     new TransactionArgumentLCS()
+                     {
+                         ArgType = (uint)TransactionArgumentLCSEnum.Address,
+                         Address = new AddressLCS(reciver)
+                     },
+                     new TransactionArgumentLCS(){
+                         ArgType = (uint)TransactionArgumentLCSEnum.U64,
+                         U64 = amount
+                     }
+                }
             };
 
-            byte[] U64ArgumentByteLcs = LCSCore.LCSSerialization(U64Argument);
+            rawTr.Sender = new AddressLCS(senderHex);
 
-            Console.WriteLine("\nU64 ARGUMENT SERIALIZED - " + U64ArgumentByteLcs.ByteArryToString());
-            Console.WriteLine("U64 ARGUMENT DESERIALIZED - " + LCSCore.LCSDeserialization<TransactionArgumentLCS>(U64ArgumentByteLcs));
+            var bytesTrx = LCSCore.LCSSerialization(rawTr);
 
-            //STRING
+            Types.SignedTransaction signedTx = new Types.SignedTransaction();
+            var bytesTrxHash = Google.Protobuf.ByteString.CopyFrom(bytesTrx);
 
-            TransactionArgumentLCS StringArgument = new TransactionArgumentLCS()
+            var seed = Encoding.ASCII.GetBytes(RAWTX_HASH_SALT + LIBRA_HASH_SUFFIX);
+            var seedHash = Sha3.Sha3256().ComputeHash(seed);
+            List<byte> hashInput = new List<byte>();
+            hashInput.AddRange(seedHash);
+            hashInput.AddRange(bytesTrxHash);
+            var hash = Sha3.Sha3256().ComputeHash(hashInput.ToArray());
+
+            SubmitTransactionRequest req = new SubmitTransactionRequest();
+
+            req.SignedTxn = new SignedTransaction();
+
+            List<byte> retArr = new List<byte>();
+            retArr = retArr.Concat(bytesTrx).ToList();
+
+            retArr = retArr.Concat(
+                LCSCore.LCSSerialization(key.Export(KeyBlobFormat.RawPublicKey))).ToList();
+            var sig = SignatureAlgorithm.Ed25519.Sign(key, hash);
+            retArr = retArr.Concat(LCSCore.LCSSerialization(sig)).ToList();
+            req.SignedTxn.SignedTxn = ByteString.CopyFrom(retArr.ToArray());
+
+
+            var result = client.SubmitTransaction(
+                 req, new Metadata());
+
+            Task.Delay(5000).Wait();
+            GetTransaction(client, senderHex, seqNum);
+        }
+
+        private static void GetTransaction(AdmissionControl.AdmissionControl.AdmissionControlClient client, string accountHex, UInt64 seqNum)
+        {
+            Console.WriteLine($"GetTransaction for {accountHex} and seqnum {seqNum}.");
+
+            HexEncoder hex = new HexEncoder();
+
+            Types.UpdateToLatestLedgerRequest updToLatestLedgerReq = new Types.UpdateToLatestLedgerRequest();
+            var getTxReq = new Types.GetAccountTransactionBySequenceNumberRequest();
+            getTxReq.SequenceNumber = seqNum;
+            getTxReq.Account = Google.Protobuf.ByteString.CopyFrom(hex.DecodeData(accountHex));
+            Types.RequestItem reqItem = new Types.RequestItem();
+            reqItem.GetAccountTransactionBySequenceNumberRequest = getTxReq;
+            updToLatestLedgerReq.RequestedItems.Add(reqItem);
+            var reply = client.UpdateToLatestLedger(updToLatestLedgerReq);
+
+            if (reply?.ResponseItems?.Count == 1)
             {
-                String = "Hello, World!",
-                ArgType = (uint)TransactionArgumentLCSEnum.String
+                var resp = reply.ResponseItems[0].GetAccountTransactionBySequenceNumberResponse;
 
-            };
-
-            byte[] StringArgumentByteLcs = LCSCore.LCSSerialization(StringArgument);
-
-            Console.WriteLine("\nSTRING ARGUMENT SERIALIZED- " + StringArgumentByteLcs.ByteArryToString());
-            Console.WriteLine("nSTRING ARGUMENT DESERIALIZED - " + LCSCore.LCSDeserialization<TransactionArgumentLCS>(StringArgumentByteLcs));
-
-            //ADDRESS
-
-            TransactionArgumentLCS AddressArgument = new TransactionArgumentLCS()
-            {
-                Address = new AddressLCS{
-                    Value = "2c25991785343b23ae073a50e5fd809a2cd867526b3c1db2b0bf5d1924c693ed",
-                    Length = 32
-                },
-
-                ArgType = (uint)TransactionArgumentLCSEnum.Address
-            };
-
-            byte[] AddressArgumentByteLcs = LCSCore.LCSSerialization(AddressArgument);
-
-            Console.WriteLine("\nADDRESS ARGUMENT LCS - " + AddressArgumentByteLcs.ByteArryToString());
-            Console.WriteLine("ADDRESS ARGUMENT DESERIALIZED - " + LCSCore.LCSDeserialization<TransactionArgumentLCS>(AddressArgumentByteLcs));
-
-            //BYTE ARRAY
-
-            TransactionArgumentLCS ByteArrayArgument = new TransactionArgumentLCS()
-            {
-                // TESTING BYTE ARRAY
-                ByteArray = Encoding.UTF8.GetBytes("01217da6c6b3e19f18"),
-                ArgType = (uint)TransactionArgumentLCSEnum.ByteArray
-            };
-
-            byte[] ByteArrayArgumentByteLcs = LCSCore.LCSSerialization(ByteArrayArgument);
-
-            Console.WriteLine("\nBYTE ARRAY ARGUMENT SERIALIZED - " + ByteArrayArgumentByteLcs.ByteArryToString());
-            Console.WriteLine("BYTE ARRAY ARGUMENT DESERIALIZED - " + LCSCore.LCSDeserialization<TransactionArgumentLCS>(ByteArrayArgumentByteLcs));
-
-            #endregion
-
-            #region ACCESS PATH
-
-            // TESTING BYTE ARRAY
-            byte[] Path = Encoding.UTF8.GetBytes("01217da6c6b3e19f18");
-
-            AccessPathLCS AccessPath = new AccessPathLCS()
-            {
-                Address = new AddressLCS
+                if (resp.SignedTransactionWithProof == null)
                 {
-                    Value = "9a1ad09742d1ffc62e659e9a7797808b206f956f131d07509449c01ad8220ad4",
-                    Length = 32
-                },
-                Path = Path
-            };
-
-            byte[] AccessPathByteLcs = LCSCore.LCSSerialization(AccessPath);
-
-            Console.WriteLine("\nACCESS PATH SERIALIZED - " + AccessPathByteLcs.ByteArryToString());
-            Console.WriteLine("ACCESS PATH DESERIALIZED - " + LCSCore.LCSDeserialization<AccessPathLCS>(AccessPathByteLcs));
-
-            #endregion
+                    Console.WriteLine("GetTransaction request did not return a signed transaction.");
+                }
+                else
+                {
+                    var signedTx = resp.SignedTransactionWithProof;
+                    byte[] result = signedTx.SignedTransaction.ToByteArray();
+                    var deserializedResult = LCSCore.LCSDeserialization<SignedTransactionLCS>(result);
+                }
+            }
+            else
+            {
+                Console.WriteLine("GetTransaction did not return a result.");
+            }
         }
     }
 }

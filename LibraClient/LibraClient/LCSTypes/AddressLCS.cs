@@ -11,6 +11,13 @@ namespace LibraClient.LCSTypes
         public string Value { get; set; }
         public uint Length { get; set; }
 
+        public AddressLCS(string address)
+        {
+            this.Value = address;
+            this.ValueByte = address.HexStringToByteArray();
+            this.Length = (uint)this.ValueByte.Length;
+        }
+
 
         public override string ToString()
         {

@@ -121,6 +121,11 @@ namespace LibraClient
                 return (T)Convert.ChangeType(
                   _serialization.GetRawTransaction(source, ref cursor), typeof(T));
             }
+            else if (type == typeof(SignedTransactionLCS))
+            {
+                return (T)Convert.ChangeType(
+                  _serialization.GetSignedTransaction(source, ref cursor), typeof(T));
+            }
 
             throw new Exception("Unsupported type.");
         }
@@ -195,6 +200,11 @@ namespace LibraClient
             {
                 return _deserialization.AccessPathToByte(
                    (AccessPathLCS)source);
+            }
+            else if (type == typeof(RawTransactionLCS))
+            {
+                return _deserialization.RawTransactionToByte(
+                   (RawTransactionLCS)source);
             }
 
 
