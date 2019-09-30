@@ -1,11 +1,12 @@
-﻿using LibraClient.Enums;
-using LibraClient.LCSTypes;
+﻿using LibraReactClient.BusinessLayer.Common;
+using LibraReactClient.BusinessLayer.Enums;
+using LibraReactClient.BusinessLayer.LCSTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace LibraClient
+namespace LibraReactClient.BusinessLayer.LCSLogic
 {
     public class LibraCanonicalSerialization
     {

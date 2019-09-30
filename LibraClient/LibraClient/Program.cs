@@ -34,7 +34,7 @@ namespace LibraClient
             var key = kdf.DeriveKey(sharedSecret, null, null, Ed25519.Ed25519);
             var sender = key.PublicKey.Export(KeyBlobFormat.RawPublicKey);
 
-            UInt64 seqNum = 9;
+            UInt64 seqNum = 11;
             string senderHex = hex.EncodeData(Sha3.Sha3256().ComputeHash(sender));
 
             uint amount = 10000000;
@@ -129,8 +129,8 @@ namespace LibraClient
                 else
                 {
                     var signedTx = resp.SignedTransactionWithProof;
-                    byte[] result = signedTx.SignedTransaction.ToByteArray();
-                    var deserializedResult = LCSCore.LCSDeserialization<SignedTransactionLCS>(result);
+                    byte[] result = signedTx.SignedTransaction.SignedTxn.ToByteArray();
+                    var deserializedResult = LCSCore.LCSDeserialization<RawTransactionLCS>(result);
                 }
             }
             else

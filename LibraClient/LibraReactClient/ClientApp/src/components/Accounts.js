@@ -153,7 +153,7 @@ class Accounts extends Component {
                             <Button bsStyle="primary" className="actionButton" onClick={() => handleShowInformationModal(account.accountId)}> <Glyphicon glyph='info-sign' /></Button>
                           </OverlayTrigger>
                           <OverlayTrigger placement="top" overlay={<Tooltip id="tooltip">Mint</Tooltip>}>
-                              <Button bsStyle="primary" className="actionButton" onClick={() => handleShowMintModal(account.addressHashed)}> <Glyphicon glyph='star' /></Button>
+                              <Button bsStyle="primary" className="actionButton" onClick={() => handleShowMintModal(account.addressHashed)}> <Glyphicon glyph='plus' /></Button>
                           </OverlayTrigger>
                       </td>
                 </tr>

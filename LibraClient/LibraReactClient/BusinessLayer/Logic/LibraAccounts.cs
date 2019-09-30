@@ -1,4 +1,5 @@
 ﻿using Grpc.Core;
+using LibraReactClient.BusinessLayer.Common;
 using LibraReactClient.BusinessLayer.Entities;
 using LibraReactClient.DataAccess;
 using NBitcoin.DataEncoders;
@@ -155,16 +156,19 @@ namespace LibraReactClient.BusinessLayer.Logic
 
             startIndex += 9;
             account.AuthenticationKey = BitConverter.ToString(SubArray(bytes, startIndex, 32)).Replace("-", "").ToLower();
+
             startIndex += 32;
             account.Balance = (decimal)BitConverter.ToUInt64(SubArray(bytes, startIndex, 8)) / 1000000;
-            startIndex += 9;// 8+1 self.delegated_withdrawal_capability
+
+            startIndex += 10;// 8+1+1 self.delegated_withdrawal_capability + delegated_key_rotation_capability
             account.ReceivedEventsCount = BitConverter.ToUInt64(SubArray(bytes, startIndex, 8));
 
             startIndex += 44;
             account.SentEventsCount = BitConverter.ToUInt64(SubArray(bytes, startIndex, 8));
 
-            startIndex += 44;
-            account.SequenceNumber = BitConverter.ToUInt64(SubArray(bytes, startIndex, 8));
+            var bytesSeq = bytes.Reverse().ToArray();
+            account.SequenceNumber = BitConverter.ToUInt64(bytesSeq.SubArray(0, 8).Reverse().ToArray());
+
 
             return account;
         }
@@ -182,7 +186,7 @@ namespace LibraReactClient.BusinessLayer.Logic
                     assetTypeBytes.Remove(assetTypeBytes.FirstOrDefault());
                 assetTypeBytes.Add(item);
 
-                if (assetTypeBytes.SequenceEqual(HexStringToByteArray(AssetType)))
+                if (assetTypeBytes.SequenceEqual(Utilities.HexStringToByteArray(AssetType)))
                 {
                     startIndex = i;
                     continue;
@@ -199,13 +203,7 @@ namespace LibraReactClient.BusinessLayer.Logic
             return result;
         }
 
-        public byte[] HexStringToByteArray(string hex)
-        {
-            return Enumerable.Range(0, hex.Length)
-                             .Where(x => x % 2 == 0)
-                             .Select(x => Convert.ToByte(hex.Substring(x, 2), 16))
-                             .ToArray();
-        }
+       
     }
 
 }

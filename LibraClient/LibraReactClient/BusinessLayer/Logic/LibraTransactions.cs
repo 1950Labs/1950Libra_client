@@ -1,7 +1,11 @@
 ﻿using AdmissionControl;
 using Google.Protobuf;
 using Grpc.Core;
+using LibraReactClient.BusinessLayer.Common;
 using LibraReactClient.BusinessLayer.Entities;
+using LibraReactClient.BusinessLayer.Enums;
+using LibraReactClient.BusinessLayer.LCSLogic;
+using LibraReactClient.BusinessLayer.LCSTypes;
 using NBitcoin.DataEncoders;
 using NSec.Cryptography;
 using SHA3.Net;
@@ -20,8 +24,6 @@ namespace LibraReactClient.BusinessLayer.Logic
     {
         const string LIBRA_HASH_SUFFIX = "@@$$LIBRA$$@@";
         const string RAWTX_HASH_SALT = "RawTransaction";
-
-        
         
 
         public SubmitTransactionOut SubmitTransaction(SubmitTransactionIn input)
@@ -43,38 +45,38 @@ namespace LibraReactClient.BusinessLayer.Logic
             HkdfSha512 kdf = new HkdfSha512();
             var key = kdf.DeriveKey(sharedSecret, null, null, Ed25519.Ed25519);
             var sender = key.PublicKey.Export(KeyBlobFormat.RawPublicKey);
+
             UInt64 seqNum = account.SequenceNumber;
             string senderHex = hex.EncodeData(Sha3.Sha3256().ComputeHash(sender));
 
-            var rawTx = CreateRawTx(senderHex, seqNum, input.Recipient, Convert.ToUInt64(input.Amount * 1000000), 160000, 0);
+            RawTransactionLCS rawTx = CreateRawTx(senderHex, seqNum, input.Recipient, Convert.ToUInt64(input.Amount * 1000000), 160000, 0);
 
-            Console.WriteLine($"RawTx: {Convert.ToBase64String(rawTx.ToByteArray())}");
+            var bytesTrx = LCSCore.LCSSerialization(rawTx);
 
-            SignedTransaction signedTx = ImmutableSignedTransaction.
-            signedTx.SenderPublicKey = Google.Protobuf.ByteString.CopyFrom(sender);
-            signedTx.RawTxnBytes = rawTx.ToByteString();
+            Types.SignedTransaction signedTx = new Types.SignedTransaction();
+            var bytesTrxHash = Google.Protobuf.ByteString.CopyFrom(bytesTrx);
 
             var seed = Encoding.ASCII.GetBytes(RAWTX_HASH_SALT + LIBRA_HASH_SUFFIX);
             var seedHash = Sha3.Sha3256().ComputeHash(seed);
             List<byte> hashInput = new List<byte>();
             hashInput.AddRange(seedHash);
-            hashInput.AddRange(signedTx.RawTxnBytes.ToArray());
+            hashInput.AddRange(bytesTrxHash);
             var hash = Sha3.Sha3256().ComputeHash(hashInput.ToArray());
 
-            Console.WriteLine($"Raw tx hash {hex.EncodeData(hash)}.");
+            SubmitTransactionRequest req = new SubmitTransactionRequest();
 
-            var sig = NSec.Cryptography.Ed25519.Ed25519.Sign(key, hash);
-            signedTx.SenderSignature = Google.Protobuf.ByteString.CopyFrom(sig);
+            req.SignedTxn = new SignedTransaction();
 
-            Console.WriteLine($"Signature {hex.EncodeData(sig)}.");
+            List<byte> retArr = new List<byte>();
+            retArr = retArr.Concat(bytesTrx).ToList();
 
-            AdmissionControl.SubmitTransactionRequest submitTxReq = new AdmissionControl.SubmitTransactionRequest();
-            submitTxReq.SignedTxn = signedTx;
+            retArr = retArr.Concat(
+                LCSCore.LCSSerialization(key.Export(KeyBlobFormat.RawPublicKey))).ToList();
+            var sig = SignatureAlgorithm.Ed25519.Sign(key, hash);
+            retArr = retArr.Concat(LCSCore.LCSSerialization(sig)).ToList();
+            req.SignedTxn.SignedTxn = ByteString.CopyFrom(retArr.ToArray());
 
-            Console.WriteLine($"Submitting signed tx for {senderHex} and seqnum {seqNum}.");
-
-
-            SubmitTransactionResponse reply = client.SubmitTransaction(submitTxReq, new Metadata());
+            SubmitTransactionResponse reply = client.SubmitTransaction(req, new Metadata());
             Console.WriteLine($"Reply AcStatus {reply.AcStatus.Code}.");
             result.Transaction = null;
 
@@ -87,7 +89,7 @@ namespace LibraReactClient.BusinessLayer.Logic
             {
                 try
                 {
-                    Task.Delay(2000).Wait();
+                    Task.Delay(3000).Wait();
                     result.Transaction = GetTransaction(client, senderHex, seqNum);
                 }
                 catch (Exception excp)
@@ -97,41 +99,47 @@ namespace LibraReactClient.BusinessLayer.Logic
             }
             else
             {
-                result.Transaction = new RawTransaction();
+                result.Transaction = new RawTransactionLCS();
             }
 
             return result;
         }
 
-        private Types.RawTransaction CreateRawTx(string senderHex, UInt64 seqNum, string receipientHex, UInt64 recipientAmount, UInt64 maxGasAmount, UInt64 maxGasUnitPrice)
+        private RawTransactionLCS CreateRawTx(string senderHex, UInt64 seqNum, string receipientHex, UInt64 recipientAmount, UInt64 maxGasAmount, UInt64 maxGasUnitPrice)
         {
-            HexEncoder hex = new HexEncoder();
+            RawTransactionLCS rawTr = new RawTransactionLCS()
+            {
+                ExpirationTime = (ulong)DateTimeOffset.UtcNow.AddSeconds(60).ToUnixTimeSeconds(),
+                GasUnitPrice = maxGasUnitPrice,
+                MaxGasAmount = maxGasAmount,
+                SequenceNumber = seqNum
+            };
 
-            byte[] PeerToPeerTransactionByteCode = new byte[] { 76, 73, 66, 82, 65, 86, 77, 10, 1, 0, 7, 1, 74, 0, 0, 0, 4, 0, 0, 0, 3, 78, 0, 0, 0, 6, 0, 0, 0, 12, 84, 0, 0, 0, 6, 0, 0, 0, 13, 90, 0, 0, 0, 6, 0, 0, 0, 5, 96, 0, 0, 0, 41, 0, 0, 0, 4, 137, 0, 0, 0, 32, 0, 0, 0, 7, 169, 0, 0, 0, 15, 0, 0, 0, 0, 0, 0, 1, 0, 2, 0, 1, 3, 0, 2, 0, 2, 4, 2, 0, 3, 0, 3, 2, 4, 2, 6, 60, 83, 69, 76, 70, 62, 12, 76, 105, 98, 114, 97, 65, 99, 99, 111, 117, 110, 116, 4, 109, 97, 105, 110, 15, 112, 97, 121, 95, 102, 114, 111, 109, 95, 115, 101, 110, 100, 101, 114, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 1, 4, 0, 12, 0, 12, 1, 19, 1, 0, 2 };
+            rawTr.TransactionPayload = new TransactionPayloadLCS();
 
-            Types.RawTransaction rawTx = new Types.RawTransaction();
-            rawTx.SenderAccount = Google.Protobuf.ByteString.CopyFrom(hex.DecodeData(senderHex));
-            rawTx.SequenceNumber = seqNum;
-            rawTx.Program = new Types.Program();
-            //rawTx.Program.Code = Google.Protobuf.ByteString.CopyFrom(Convert.FromBase64String("TElCUkFWTQoBAAcBSgAAAAQAAAADTgAAAAYAAAAMVAAAAAYAAAANWgAAAAYAAAAFYAAAACkAAAAEiQAAACAAAAAHqQAAAA4AAAAAAAABAAIAAQMAAgACBAIAAwADAgQCBjxTRUxGPgxMaWJyYUFjY291bnQEbWFpbg9wYXlfZnJvbV9zZW5kZXIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAgEEAAwADAERAQAC"));
-            rawTx.Program.Code = Google.Protobuf.ByteString.CopyFrom(PeerToPeerTransactionByteCode);
+            rawTr.TransactionPayload.PayloadType = (uint)TransactionPayloadLCSEnum.Script;
+            rawTr.TransactionPayload.Script = new ScriptLCS()
+            {
+                Code = Utilities.PtPTrxBytecode,
+                TransactionArguments = new List<TransactionArgumentLCS>() {
+                     new TransactionArgumentLCS()
+                     {
+                         ArgType = (uint)TransactionArgumentLCSEnum.Address,
+                         Address = new AddressLCS(receipientHex)
+                     },
+                     new TransactionArgumentLCS(){
+                         ArgType = (uint)TransactionArgumentLCSEnum.U64,
+                         U64 = recipientAmount
+                     }
+                }
+            };
 
-            var recipientArg = new Types.TransactionArgument { Type = Types.TransactionArgument.Types.ArgType.Address };
-            recipientArg.Data = Google.Protobuf.ByteString.CopyFrom(hex.DecodeData(receipientHex));
-            rawTx.Program.Arguments.Add(recipientArg);
+            rawTr.Sender = new AddressLCS(senderHex);
 
-            var amountArg = new Types.TransactionArgument { Type = Types.TransactionArgument.Types.ArgType.U64 };
-            amountArg.Data = Google.Protobuf.ByteString.CopyFrom(BitConverter.GetBytes(recipientAmount));
-            rawTx.Program.Arguments.Add(amountArg);
-
-            rawTx.MaxGasAmount = maxGasAmount;
-            rawTx.GasUnitPrice = maxGasUnitPrice;
-            rawTx.ExpirationTime = (ulong)DateTimeOffset.UtcNow.AddSeconds(60).ToUnixTimeSeconds();
-            
-            return rawTx;
+            return rawTr;
         }
 
-        private RawTransaction GetTransaction(AdmissionControl.AdmissionControl.AdmissionControlClient client, string accountHex, UInt64 seqNum)
+        private RawTransactionLCS GetTransaction(AdmissionControl.AdmissionControl.AdmissionControlClient client, string accountHex, UInt64 seqNum)
         {
             Console.WriteLine($"GetTransaction for {accountHex} and seqnum {seqNum}.");
 
@@ -145,7 +153,7 @@ namespace LibraReactClient.BusinessLayer.Logic
             reqItem.GetAccountTransactionBySequenceNumberRequest = getTxReq;
             updToLatestLedgerReq.RequestedItems.Add(reqItem);
             var reply = client.UpdateToLatestLedger(updToLatestLedgerReq);
-            Types.RawTransaction rawTx = null;
+            RawTransactionLCS rawTx = null;
 
             if (reply?.ResponseItems?.Count == 1)
             {
@@ -158,24 +166,8 @@ namespace LibraReactClient.BusinessLayer.Logic
                 else
                 {
                     var signedTx = resp.SignedTransactionWithProof;
-
-                    Console.WriteLine($"Sender {hex.EncodeData(signedTx.SignedTransaction.SenderPublicKey.ToByteArray())}.");
-                    Console.WriteLine($"RawTxnBytes {hex.EncodeData(signedTx.SignedTransaction.RawTxnBytes.ToByteArray())}");
-
-                    rawTx = Types.RawTransaction.Parser.ParseFrom(signedTx.SignedTransaction.RawTxnBytes);
-
-                    Console.WriteLine($"SequenceNumber {rawTx.SequenceNumber}.");
-                    Console.WriteLine($"MaxGasAmount {rawTx.MaxGasAmount}.");
-                    Console.WriteLine($"GasUnitPrice {rawTx.GasUnitPrice}.");
-                    Console.WriteLine($"ExpirationTime {rawTx.ExpirationTime}.");
-
-                    var byteCode = rawTx.Program.Code.ToByteArray();
-
-                    Console.WriteLine($"Program.Code base64 {Convert.ToBase64String(byteCode)}.");
-
-                    SHA512 sha512 = SHA512.Create();
-                    var byteCodeHash = hex.EncodeData(sha512.ComputeHash(byteCode));
-                    Console.WriteLine($"Program.Code hash {byteCodeHash}.");
+                    byte[] result = signedTx.SignedTransaction.SignedTxn.ToByteArray();
+                    rawTx = LCSCore.LCSDeserialization<RawTransactionLCS>(result);
                 }
             }
             else
