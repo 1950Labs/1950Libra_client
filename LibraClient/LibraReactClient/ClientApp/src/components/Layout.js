@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { Col, Grid, Row } from 'react-bootstrap';
 import { NavMenu } from './NavMenu';
+import SignOutButton from './SignOut'
+import './Layout.css';
 
 export class Layout extends Component {
   displayName = Layout.name
@@ -13,7 +15,9 @@ export class Layout extends Component {
             <NavMenu />
           </Col>
           <Col sm={10}>
-            {this.props.children}
+                    <div className="signOutButton"><SignOutButton /></div>
+                    {this.props.children}
+                    
           </Col>
         </Row>
       </Grid>
