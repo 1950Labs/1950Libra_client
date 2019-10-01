@@ -21,7 +21,7 @@ class TransactionResult extends Component {
             this.setState({
                 transactionMessage: 'Transaction successfull',
                 transactionIcon: 'success_icon.svg',
-                transactionSeqNumber: this.state.transaction.transactionResult.sequenceNumber
+                transactionSeqNumber: this.state.transactionResult.transaction.sequenceNumber
             });
         } else {
             this.setState({

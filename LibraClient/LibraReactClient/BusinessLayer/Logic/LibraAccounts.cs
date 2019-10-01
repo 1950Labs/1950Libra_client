@@ -166,8 +166,8 @@ namespace LibraReactClient.BusinessLayer.Logic
             startIndex += 44;
             account.SentEventsCount = BitConverter.ToUInt64(SubArray(bytes, startIndex, 8));
 
-            var bytesSeq = bytes.Reverse().ToArray();
-            account.SequenceNumber = BitConverter.ToUInt64(bytesSeq.SubArray(0, 8).Reverse().ToArray());
+            startIndex += 44;
+            account.SequenceNumber = BitConverter.ToUInt64(SubArray(bytes, startIndex, 8));
 
 
             return account;
