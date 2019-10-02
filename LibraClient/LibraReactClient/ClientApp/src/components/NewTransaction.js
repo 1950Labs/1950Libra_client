@@ -13,7 +13,7 @@ class NewTransaction extends Component {
             sourceAccountId: 0,
             source: '',
             recipient: '',
-            amount: 0,
+            amount: undefined,
             value: '',
             showModal: false,
             loadingAccounts: false,

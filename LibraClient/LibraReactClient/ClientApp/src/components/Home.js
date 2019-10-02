@@ -9,7 +9,7 @@ class Home extends Component {
       <div>
             <h1>Libra Net Core Client</h1>
             <p>Welcome to new Libra Client, developed by <a href='http://1950labs.com/'>1950Labs</a></p>
-            <p>Last update: <b>10th September 2019</b></p>
+            <p>Last update: <b>1st October 2019</b></p>
         <p>You will be able to:</p>
         <ul>
           <li>Create new Libra accounts</li>

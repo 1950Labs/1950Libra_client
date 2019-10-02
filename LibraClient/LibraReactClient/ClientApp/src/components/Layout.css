@@ -1,4 +1,8 @@
 ﻿.signOutButton {
     text-align: end;
     margin-top: 10px;
+    position:fixed;
+    z-index: 10;
+    right: 0%;
+    margin-right: 10px;
 }

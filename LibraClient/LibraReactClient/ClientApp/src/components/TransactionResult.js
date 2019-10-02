@@ -12,16 +12,19 @@ class TransactionResult extends Component {
             ...props.location.state,
             transactionMessage: undefined,
             transactionIcon: undefined,
-            transactionSeqNumber: undefined
+            transactionDate:undefined
         };
     }
 
     componentDidMount() {
         if (this.state.transactionStatus == 'success') {
+
+            const txDate = new Date(this.state.transactionResult.transaction.expirationTime)
+
             this.setState({
                 transactionMessage: 'Transaction successfull',
                 transactionIcon: 'success_icon.svg',
-                transactionSeqNumber: this.state.transactionResult.transaction.sequenceNumber
+                transactionDate: txDate
             });
         } else {
             this.setState({
@@ -53,8 +56,15 @@ class TransactionResult extends Component {
                                 <ListGroupItem header="Source account">{this.state.transactionResult.sourceHex}</ListGroupItem>
                                 <ListGroupItem header="Recipient account">{this.state.transactionResult.recipientHex}</ListGroupItem>
                                 {
-                                    this.state.transactionSeqNumber ?
-                                        <ListGroupItem header="Sequence number">{this.state.transactionSeqNumber}</ListGroupItem>
+                                    this.state.transactionResult.transaction ? 
+                                        <div>
+                                            <ListGroupItem header="Version ID">{this.state.transactionResult.transaction.versionId}</ListGroupItem>
+                                            <ListGroupItem header="Sequence number">{this.state.transactionResult.transaction.sequenceNumber}</ListGroupItem>
+                                            <ListGroupItem header="Max gas amount">{this.state.transactionResult.transaction.maxGasAmount / 1000000} <img className="libraIconTR" src={require("../images/libra_icon.svg")} alt="logo" /></ListGroupItem>
+                                            <ListGroupItem header="Gas unit price">{this.state.transactionResult.transaction.gasUnitPrice / 1000000} <img className="libraIconTR" src={require("../images/libra_icon.svg")} alt="logo" /></ListGroupItem>
+                                            <ListGroupItem header="Expiration date">{this.state.transactionDate.toString() } </ListGroupItem>
+                                            <ListGroupItem header="Transaction type">{this.state.transactionResult.transaction.payloadCase == 2 ? 'Peer to peer TX' : 'Mint TX' } </ListGroupItem>
+                                        </div>
                                         : null
                                 }
                                

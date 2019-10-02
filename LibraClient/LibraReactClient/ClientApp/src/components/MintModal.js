@@ -9,7 +9,7 @@ class MintModal extends Component {
   constructor(props) {
     super(props);
       this.state = {
-          amount: 0,
+          amount: undefined,
           loading: false,
           formValid: false,
           minted: undefined,
@@ -33,7 +33,7 @@ class MintModal extends Component {
     }
     componentDidUpdate(prevProps) {
         if (this.props.show && this.props.accountAddress && prevProps.accountAddress !== this.props.accountAddress) {
-            this.setState({ amount: 0 });
+            this.setState({ amount: undefined });
         }
     }
 

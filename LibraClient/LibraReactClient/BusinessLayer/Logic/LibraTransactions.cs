@@ -99,7 +99,7 @@ namespace LibraReactClient.BusinessLayer.Logic
             }
             else
             {
-                result.Transaction = new RawTransactionLCS();
+                result.Transaction = new CustomRawTransaction();
             }
 
             return result;
@@ -139,7 +139,7 @@ namespace LibraReactClient.BusinessLayer.Logic
             return rawTr;
         }
 
-        private RawTransactionLCS GetTransaction(AdmissionControl.AdmissionControl.AdmissionControlClient client, string accountHex, UInt64 seqNum)
+        private CustomRawTransaction GetTransaction(AdmissionControl.AdmissionControl.AdmissionControlClient client, string accountHex, UInt64 seqNum)
         {
             Console.WriteLine($"GetTransaction for {accountHex} and seqnum {seqNum}.");
 
@@ -153,7 +153,7 @@ namespace LibraReactClient.BusinessLayer.Logic
             reqItem.GetAccountTransactionBySequenceNumberRequest = getTxReq;
             updToLatestLedgerReq.RequestedItems.Add(reqItem);
             var reply = client.UpdateToLatestLedger(updToLatestLedgerReq);
-            RawTransactionLCS rawTx = null;
+            CustomRawTransaction rawTx = null;
 
             if (reply?.ResponseItems?.Count == 1)
             {
@@ -167,7 +167,9 @@ namespace LibraReactClient.BusinessLayer.Logic
                 {
                     var signedTx = resp.SignedTransactionWithProof;
                     byte[] result = signedTx.SignedTransaction.SignedTxn.ToByteArray();
-                    rawTx = LCSCore.LCSDeserialization<RawTransactionLCS>(result);
+                    rawTx = new CustomRawTransaction(result);
+                    rawTx.VersionId = resp.SignedTransactionWithProof.Version;
+
                 }
             }
             else

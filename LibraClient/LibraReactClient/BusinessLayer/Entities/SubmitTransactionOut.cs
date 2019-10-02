@@ -9,7 +9,7 @@ namespace LibraReactClient.BusinessLayer.Entities
 {
     public class SubmitTransactionOut
     {
-        public RawTransactionLCS Transaction { get; set; }
+        public CustomRawTransaction Transaction { get; set; }
 
         public string ACStatus { get; set; }
 

@@ -4,6 +4,8 @@ namespace LibraReactClient.BusinessLayer.LCSTypes
 {
     public class RawTransactionLCS
     {
+        public ulong VersionId { get; set; }
+
         public ulong MaxGasAmount { get; internal set; }
         public ulong GasUnitPrice { get; internal set; }
         public ulong ExpirationTime { get; internal set; }
