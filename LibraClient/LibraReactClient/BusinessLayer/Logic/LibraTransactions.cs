@@ -105,6 +105,8 @@ namespace LibraReactClient.BusinessLayer.Logic
             return result;
         }
 
+        
+
         private RawTransactionLCS CreateRawTx(string senderHex, UInt64 seqNum, string receipientHex, UInt64 recipientAmount, UInt64 maxGasAmount, UInt64 maxGasUnitPrice)
         {
             RawTransactionLCS rawTr = new RawTransactionLCS()
@@ -178,6 +180,34 @@ namespace LibraReactClient.BusinessLayer.Logic
             }
 
             return rawTx;
+        }
+
+        public GetTransactionsOut GetTransactions(GetTransactionsIn input)
+        {
+            GetTransactionsOut result = new GetTransactionsOut { Transactions = new List<CustomRawTransaction>() };
+
+                    
+            var client = new AdmissionControlEntity().Client;
+
+            LibraAccounts libraAccountsComponent = new LibraAccounts();
+
+            var account = libraAccountsComponent.GetAccountInfo(new GetAccountInfoIn
+            {
+                AccountId = input.AccountId
+            }).Account;
+
+
+            int count = 0;
+            account.SequenceNumber--;
+
+            while (count < 10 && account.SequenceNumber != 0) { 
+                CustomRawTransaction crt = GetTransaction(client, account.AddressHashed, account.SequenceNumber);
+                result.Transactions.Add(crt);
+                account.SequenceNumber--;
+                count++;
+            }
+
+            return result;
         }
 
         public async Task<MintOut> MintAsync(MintIn input)

@@ -54,6 +54,13 @@ namespace LibraReactClient.Controllers
 
         [Authorize]
         [HttpGet("[action]")]
+        public GetTransactionsOut GetTransactions(GetTransactionsIn request)
+        {
+            return TransactionsLogic.GetTransactions(request);
+        }
+
+        [Authorize]
+        [HttpGet("[action]")]
         public GetAccountInfoOut GetAccountInfo(int accountId)
         {
             return AccountsLogic.GetAccountInfo(new GetAccountInfoIn

@@ -3,6 +3,7 @@ import { Button, Modal, FormGroup, ControlLabel, FormControl, HelpBlock, Alert, 
 import './Accounts.css';
 import InformationModal from './InformationModal';
 import MintModal from './MintModal';
+import TransactionsModal from './TransactionsModal';
 import withAuthorization from './WithAuthorization';
 import ReCAPTCHA from "react-google-recaptcha";
 
@@ -25,6 +26,7 @@ class Accounts extends Component {
           savingAccount: false,
           showInformationModal: false,
           showMintModal: false,
+          showTransactionsModal: false,
           accountAddress: undefined
       };
 
@@ -41,6 +43,9 @@ class Accounts extends Component {
       this.handleShowMintModal = this.handleShowMintModal.bind(this);
       this.handleCloseMintModal = this.handleCloseMintModal.bind(this);
       this.onChangeReCaptcha = this.onChangeReCaptcha.bind(this);
+
+      this.handleShowTransactionsModal = this.handleShowTransactionsModal.bind(this);
+      this.handleCloseTransactionsModal = this.handleCloseTransactionsModal.bind(this);
     }
 
     componentDidMount() {
@@ -130,7 +135,15 @@ class Accounts extends Component {
         this.setState({ showMintModal: false, accountAddress: undefined });
     }
 
-    static renderAccountsTable(accounts, handleShowInformationModal, handleShowMintModal) {
+    handleShowTransactionsModal(accountId) {
+        this.setState({ accountId: accountId, showTransactionsModal: true });
+    }
+
+    handleCloseTransactionsModal() {
+        this.setState({ showTransactionsModal: false, accountId: undefined });
+    }
+
+    static renderAccountsTable(accounts, handleShowInformationModal, handleShowMintModal, handleShowTransactionsModal) {
       return (
       <div>
           <table className='table'>
@@ -155,6 +168,9 @@ class Accounts extends Component {
                           <OverlayTrigger placement="top" overlay={<Tooltip id="tooltip">Mint</Tooltip>}>
                               <Button bsStyle="primary" className="actionButton" onClick={() => handleShowMintModal(account.addressHashed)}> <Glyphicon glyph='plus' /></Button>
                           </OverlayTrigger>
+                          <OverlayTrigger placement="top" overlay={<Tooltip id="tooltip">Last 10 transactions</Tooltip>}>
+                              <Button bsStyle="primary" className="actionButton" onClick={() => handleShowTransactionsModal(account.accountId)}> <Glyphicon glyph='list-alt' /></Button>
+                          </OverlayTrigger>
                       </td>
                 </tr>
                       )}
@@ -178,9 +194,10 @@ class Accounts extends Component {
 
         :
         <div>
-            {Accounts.renderAccountsTable(this.state.accounts, this.handleShowInformationModal, this.handleShowMintModal)}
+            {Accounts.renderAccountsTable(this.state.accounts, this.handleShowInformationModal, this.handleShowMintModal, this.handleShowTransactionsModal)}
             <InformationModal show={this.state.showInformationModal} accountId={this.state.accountId} onClose={this.handleCloseInformationModal} />
             <MintModal show={this.state.showMintModal} accountAddress={this.state.accountAddress} onClose={this.handleCloseMintModal} />
+            <TransactionsModal show={this.state.showTransactionsModal} accountId={this.state.accountId} onClose={this.handleCloseTransactionsModal} />
         </div>
 
     return (
