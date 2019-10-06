@@ -135,12 +135,12 @@ class Accounts extends Component {
         this.setState({ showMintModal: false, accountAddress: undefined });
     }
 
-    handleShowTransactionsModal(accountId) {
-        this.setState({ accountId: accountId, showTransactionsModal: true });
+    handleShowTransactionsModal(account) {
+        this.setState({ account: account, showTransactionsModal: true });
     }
 
     handleCloseTransactionsModal() {
-        this.setState({ showTransactionsModal: false, accountId: undefined });
+        this.setState({ showTransactionsModal: false, account: undefined });
     }
 
     static renderAccountsTable(accounts, handleShowInformationModal, handleShowMintModal, handleShowTransactionsModal) {
@@ -169,7 +169,7 @@ class Accounts extends Component {
                               <Button bsStyle="primary" className="actionButton" onClick={() => handleShowMintModal(account.addressHashed)}> <Glyphicon glyph='plus' /></Button>
                           </OverlayTrigger>
                           <OverlayTrigger placement="top" overlay={<Tooltip id="tooltip">Last 10 transactions</Tooltip>}>
-                              <Button bsStyle="primary" className="actionButton" onClick={() => handleShowTransactionsModal(account.accountId)}> <Glyphicon glyph='list-alt' /></Button>
+                              <Button bsStyle="primary" className="actionButton" onClick={() => handleShowTransactionsModal(account)}> <Glyphicon glyph='list-alt' /></Button>
                           </OverlayTrigger>
                       </td>
                 </tr>
@@ -197,7 +197,7 @@ class Accounts extends Component {
             {Accounts.renderAccountsTable(this.state.accounts, this.handleShowInformationModal, this.handleShowMintModal, this.handleShowTransactionsModal)}
             <InformationModal show={this.state.showInformationModal} accountId={this.state.accountId} onClose={this.handleCloseInformationModal} />
             <MintModal show={this.state.showMintModal} accountAddress={this.state.accountAddress} onClose={this.handleCloseMintModal} />
-            <TransactionsModal show={this.state.showTransactionsModal} accountId={this.state.accountId} onClose={this.handleCloseTransactionsModal} />
+            <TransactionsModal show={this.state.showTransactionsModal} account={this.state.account} onClose={this.handleCloseTransactionsModal} />
         </div>
 
     return (

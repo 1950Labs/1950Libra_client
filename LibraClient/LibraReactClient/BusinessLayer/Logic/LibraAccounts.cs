@@ -169,7 +169,7 @@ namespace LibraReactClient.BusinessLayer.Logic
             startIndex += 44;
             account.SequenceNumber = BitConverter.ToUInt64(SubArray(bytes, startIndex, 8));
 
-
+            //account.SequenceNumber = BitConverter.ToUInt64(SubArray(bytes.Reverse().ToArray(), 0, 8).Reverse().ToArray());
             return account;
         }
 

@@ -198,7 +198,11 @@ namespace LibraReactClient.BusinessLayer.Logic
 
 
             int count = 0;
-            account.SequenceNumber--;
+
+            if (account.SequenceNumber != 0)
+            {
+                account.SequenceNumber--;
+            }
 
             while (count < 10 && account.SequenceNumber != 0) { 
                 CustomRawTransaction crt = GetTransaction(client, account.AddressHashed, account.SequenceNumber);

@@ -56,7 +56,7 @@ class TransactionResult extends Component {
                                 <ListGroupItem header="Source account">{this.state.transactionResult.sourceHex}</ListGroupItem>
                                 <ListGroupItem header="Recipient account">{this.state.transactionResult.recipientHex}</ListGroupItem>
                                 {
-                                    this.state.transactionResult.transaction ? 
+                                        this.state.transactionStatus == 'success' ? 
                                         <div>
                                             <ListGroupItem header="Version ID">{this.state.transactionResult.transaction.versionId}</ListGroupItem>
                                             <ListGroupItem header="Sequence number">{this.state.transactionResult.transaction.sequenceNumber}</ListGroupItem>

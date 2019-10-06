@@ -15,11 +15,11 @@ class TransactionsModal extends Component {
 
    
     componentDidUpdate(prevProps) {
-        if (this.props.show && this.props.accountId && prevProps.accountId !== this.props.accountId) {
+        if (this.props.show && (!prevProps.account || (this.props.account && this.props.account.accountId && prevProps.account.accountId !== this.props.account.accountId))) {
             this.setState({ transactions: [] });
 
             this.setState({ loading: true });
-            fetch('api/Libra/GetTransactions?accountId=' + this.props.accountId, {
+            fetch('api/Libra/GetTransactions?accountId=' + this.props.account.accountId, {
                 headers: { 'Authorization': 'Bearer ' + this.props.token }
                 })
                 .then(response => response.json())
@@ -39,7 +39,8 @@ class TransactionsModal extends Component {
                 <table className='table'>
                     <thead>
                         <tr>
-                            <th>TransactionId</th>
+                            <th># Transaction</th>
+                            <th>Receiver</th>
                             <th>Amount</th>
                         </tr>
                     </thead>
@@ -48,6 +49,7 @@ class TransactionsModal extends Component {
                             transactions.map(transaction =>
                                 <tr key={transaction.versionId}>
                                     <td>{transaction.versionId}</td>
+                                    <td>{transaction.receiver}</td>
                                     <td>{transaction.amount / 1000000} <img className="libraIconTM" src={require("../images/libra_icon.svg")} alt="logo" /> </td>
                                     
                                 </tr>
@@ -69,10 +71,10 @@ class TransactionsModal extends Component {
                 <div>
                 </div>
                 <div className="static-modal">
-                    <Modal show={this.props.show}>
+                    <Modal bsSize="large" show={this.props.show}>
                         <Modal.Header>
                             <Modal.Title>
-                                Transactions
+                                Last 10 Transactions - Account: {this.props.account ? this.props.account.addressHashed : ''}
                         </Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
