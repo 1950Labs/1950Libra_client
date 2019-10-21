@@ -10,5 +10,7 @@ namespace LibraReactClient.BusinessLayer.Entities
         public Account Account { get; set; }
 
         public bool OperationSuccess { get; set; }
+
+        public bool MaxAccountReached { get; set; }
     }
 }

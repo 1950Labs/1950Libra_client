@@ -23,7 +23,7 @@ namespace LibraReactClient.BusinessLayer.Logic
 
         public async Task<AddAccountOut> AddAccountAsync(AddAccountIn input)
         {
-            AddAccountOut output = new AddAccountOut { OperationSuccess = false };
+            AddAccountOut output = new AddAccountOut { OperationSuccess = false, MaxAccountReached = false };
 
             HexEncoder hex = new HexEncoder();
 
@@ -38,31 +38,41 @@ namespace LibraReactClient.BusinessLayer.Logic
 
             if (!existsAccount)
             {
-                HttpClient client = new HttpClient();
 
-                var content = new FormUrlEncodedContent(new Dictionary<string, string>());
-
-                var response = await client.PostAsync("http://faucet.testnet.libra.org/?amount=100000&address=" + senderHex, content);
-
-                var responseString = await response.Content.ReadAsStringAsync();
-
-                Account account = new Account
+                if (GetAccounts(new GetAccountsIn { UserUID = input.UserUID }).Count() < Constants.Accounts.MaxAccountsAllowed)
                 {
-                    Address = sender,
-                    AddressHashed = senderHex,
-                    Owner = input.Owner,
-                    UserUID = input.UserUID
-                };
 
-                using (var db = new LibraContext())
-                {
-                    db.Accounts.Add(account);
-                    var count = db.SaveChanges();
-                    if (count > 0)
+                    HttpClient client = new HttpClient();
+
+                    var content = new FormUrlEncodedContent(new Dictionary<string, string>());
+
+                    var response = await client.PostAsync("http://faucet.testnet.libra.org/?amount=100000&address=" + senderHex, content);
+
+                    var responseString = await response.Content.ReadAsStringAsync();
+
+                    Account account = new Account
                     {
-                        output.Account = account;
-                        output.OperationSuccess = true;
+                        Address = sender,
+                        AddressHashed = senderHex,
+                        Owner = input.Owner,
+                        UserUID = input.UserUID
+                    };
+
+                    using (var db = new LibraContext())
+                    {
+                        db.Accounts.Add(account);
+                        var count = db.SaveChanges();
+                        if (count > 0)
+                        {
+                            output.Account = account;
+                            output.OperationSuccess = true;
+                        }
                     }
+                }
+                else
+                {
+                    output.MaxAccountReached = true;
+                    output.OperationSuccess = false;
                 }
             }
 

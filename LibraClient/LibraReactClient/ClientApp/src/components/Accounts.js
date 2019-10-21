@@ -27,7 +27,8 @@ class Accounts extends Component {
           showInformationModal: false,
           showMintModal: false,
           showTransactionsModal: false,
-          accountAddress: undefined
+          accountAddress: undefined,
+          maxAccountReached: false
       };
 
       
@@ -109,6 +110,7 @@ class Accounts extends Component {
             .then(data => {
                 this.setState({
                     addAccountResult: data.operationSuccess,
+                    maxAccountReached: data.maxAccountReached,
                     showAlert: true,
                     showModal: false,
                     account: data.account,
@@ -215,7 +217,7 @@ class Accounts extends Component {
                 {
                     this.state.showAlert ?
                         <Alert bsStyle={this.state.addAccountResult ? "success" : "danger"} onDismiss={this.handleDismissAlert}>
-                            <h3>{this.state.addAccountResult ? 'Account created successfully' : 'Account not created'}</h3>
+                            <h3>{this.state.addAccountResult ? 'Account created successfully' : (this.state.maxAccountReached ? 'Max accounts reached' : 'Account not created') }</h3>
                             {this.state.addAccountResult ?
                                 <div>
                                     <h4>New Account Info</h4>
@@ -224,9 +226,15 @@ class Accounts extends Component {
                                     <p>Address: {this.state.account.addressHashed}</p>
                                 </div>
                                 :
-                                <p>
-                                    There was a problem creating the account. This could be a problem in the network or simple the owner already exists in the Libra Network.
-                                </p>
+
+                                (this.state.maxAccountReached ? 
+                                    <p>
+                                        You already reached the limit of accounts creation.
+                                    </p>
+                                    : 
+                                    <p>
+                                        There was a problem creating the account. This could be a problem in the network or simple the owner already exists in the Libra Network.
+                                    </p>)
                             }
                             <p>
                                 <Button bsStyle="primary" onClick={this.handleDismissAlert}>Close</Button>
