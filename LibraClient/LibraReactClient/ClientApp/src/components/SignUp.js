@@ -69,6 +69,7 @@ class SignUpForm extends Component {
                     <div className="fadeIn first">
                         <img src={require("../images/1950labs.png")} id="icon" alt="Logo" />
                         <div className="PoweredBy">Powered By </div><img src={require("../images/LibraLogo.png")} id="iconLibra" alt="LogoLibra" />
+                        <div className="TestnetContainerLogin"><p className="TestnetTextLogin">Testnet</p></div>
                     </div>
                     <h4>Create account</h4>
                     <form onSubmit={this.onSubmit}>

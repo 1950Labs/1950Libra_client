@@ -13,9 +13,9 @@ export class NavMenu extends Component {
       <Navbar inverse fixedTop fluid collapseOnSelect>
         <Navbar.Header>
           <Navbar.Brand>
-            <Link to={'/'} >
+             <a href='http://1950labs.com/' target="_blank">
                 <img className="logo" src={require("../images/1950labs.png")} alt="logo" />    
-            </Link>
+            </a>
           </Navbar.Brand>
           <Navbar.Toggle />
         </Navbar.Header>
