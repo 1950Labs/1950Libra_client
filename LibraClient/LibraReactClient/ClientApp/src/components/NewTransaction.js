@@ -105,7 +105,7 @@ class NewTransaction extends Component {
             .then(response => response.json())
             .then(data => {
                 this.setState({ loading: false });
-                if (data.transaction != undefined && data.transaction.sequenceNumber != undefined) {
+                if (data.transaction != undefined && data.transaction.sequenceNumber != undefined && data.acStatus == "Accepted") {
                     this.setState({ transactionSuccess: true });
                     this.props.history.push({
                         pathname: routes.TRANSACTION_RESULT,
