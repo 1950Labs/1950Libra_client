@@ -114,6 +114,7 @@ import "Protos/access_path.proto";
 import "Protos/account_state_blob.proto";
 import "Protos/events.proto";
 import "Protos/ledger_info.proto";
+import "Protos/proof.proto";
 import "Protos/transaction.proto";
 import "Protos/validator_change.proto";
 
@@ -171,6 +172,10 @@ message UpdateToLatestLedgerResponse {
     // inform the client of validator changes from the client's last known version
     // until the current version
     repeated ValidatorChangeEventWithProof validator_change_events = 3;
+
+    // A proof that shows the latest ledger accumulator is consistent with the
+    // old accumulator at "client_known_version".
+    AccumulatorConsistencyProof ledger_consistency_proof = 4;
 }
 
 // Individual response items to the queries posed by the requests
