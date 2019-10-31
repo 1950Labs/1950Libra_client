@@ -162,9 +162,24 @@ namespace LibraReactClient.BusinessLayer.Logic
         {
             AccountExtendedData account = new AccountExtendedData();
 
-            int startIndex = GetAssetTypeStartIndex(bytes, address);
+            int startIndex = 0;
 
-            startIndex += 9;
+            bool loop = true;
+
+            while (loop)
+            {
+                string authenticationKey = BitConverter.ToString(SubArray(bytes, startIndex, 32)).Replace("-", "").ToLower();
+                if (authenticationKey.Equals(address))
+                {
+                    account.AuthenticationKey = BitConverter.ToString(SubArray(bytes, startIndex, 32)).Replace("-", "").ToLower();
+                    loop = false;
+                    break;
+                }
+
+                startIndex++;
+            }
+
+
             account.AuthenticationKey = BitConverter.ToString(SubArray(bytes, startIndex, 32)).Replace("-", "").ToLower();
 
             startIndex += 32;
