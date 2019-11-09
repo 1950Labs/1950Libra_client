@@ -151,10 +151,11 @@ namespace LibraReactClient.BusinessLayer.Logic
             var getTxReq = new Types.GetAccountTransactionBySequenceNumberRequest();
             getTxReq.SequenceNumber = seqNum;
             getTxReq.Account = Google.Protobuf.ByteString.CopyFrom(hex.DecodeData(accountHex));
+            getTxReq.FetchEvents = true;
             Types.RequestItem reqItem = new Types.RequestItem();
             reqItem.GetAccountTransactionBySequenceNumberRequest = getTxReq;
             updToLatestLedgerReq.RequestedItems.Add(reqItem);
-            var reply = client.UpdateToLatestLedger(updToLatestLedgerReq);
+            var reply = client.UpdateToLatestLedger(updToLatestLedgerReq, new Metadata());
             CustomRawTransaction rawTx = null;
 
             if (reply?.ResponseItems?.Count == 1)

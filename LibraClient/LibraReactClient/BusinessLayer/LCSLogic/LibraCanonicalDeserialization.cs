@@ -147,7 +147,7 @@ namespace LibraReactClient.BusinessLayer.LCSLogic
         public AddressLCS GetAddress(byte[] source, ref int cursor)
         {
             var retVal = new AddressLCS();
-            retVal.Length = Read_u32(source, ref cursor);
+            retVal.Length = 32;
 
             retVal.ValueByte = Read_u8(source, ref cursor, (int)retVal.Length)
                 .ToArray();
@@ -274,7 +274,6 @@ namespace LibraReactClient.BusinessLayer.LCSLogic
           ref int localCursor)
         {
             var bytes = Read_u8(source, ref localCursor, 2);
-
             return BitConverter.ToUInt16(bytes.ToArray());
         }
 
