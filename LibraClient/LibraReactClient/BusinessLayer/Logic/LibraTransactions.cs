@@ -65,7 +65,7 @@ namespace LibraReactClient.BusinessLayer.Logic
 
             SubmitTransactionRequest req = new SubmitTransactionRequest();
 
-            req.SignedTxn = new SignedTransaction();
+            req.Transaction = new SignedTransaction();
 
             List<byte> retArr = new List<byte>();
             retArr = retArr.Concat(bytesTrx).ToList();
@@ -74,7 +74,7 @@ namespace LibraReactClient.BusinessLayer.Logic
                 LCSCore.LCSSerialization(key.Export(KeyBlobFormat.RawPublicKey))).ToList();
             var sig = SignatureAlgorithm.Ed25519.Sign(key, hash);
             retArr = retArr.Concat(LCSCore.LCSSerialization(sig)).ToList();
-            req.SignedTxn.SignedTxn = ByteString.CopyFrom(retArr.ToArray());
+            req.Transaction.TxnBytes = ByteString.CopyFrom(retArr.ToArray());
 
             SubmitTransactionResponse reply = client.SubmitTransaction(req, new Metadata());
             Console.WriteLine($"Reply AcStatus {reply.AcStatus.Code}.");
@@ -162,16 +162,16 @@ namespace LibraReactClient.BusinessLayer.Logic
             {
                 var resp = reply.ResponseItems[0].GetAccountTransactionBySequenceNumberResponse;
 
-                if (resp.SignedTransactionWithProof == null)
+                if (resp.TransactionWithProof == null)
                 {
                     Console.WriteLine("GetTransaction request did not return a signed transaction.");
                 }
                 else
                 {
-                    var signedTx = resp.SignedTransactionWithProof;
-                    byte[] result = signedTx.SignedTransaction.SignedTxn.ToByteArray();
+                    var signedTx = resp.TransactionWithProof;
+                    byte[] result = signedTx.Transaction.ToByteArray();
                     rawTx = new CustomRawTransaction(result);
-                    rawTx.VersionId = resp.SignedTransactionWithProof.Version;
+                    rawTx.VersionId = resp.TransactionWithProof.Version;
 
                 }
             }

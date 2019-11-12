@@ -30,6 +30,12 @@ namespace LibraReactClient.BusinessLayer.LCSLogic
         {
             var retVal = new RawTransactionLCS();
 
+            // TODO Review what are these values
+            retVal.FirstUint = source.LCSDeserialization<uint>(ref cursor);
+            bool x = source.LCSDeserialization<bool>(ref cursor);
+            bool y = source.LCSDeserialization<bool>(ref cursor);
+            bool z = source.LCSDeserialization<bool>(ref cursor);
+
             retVal.Sender = source.LCSDeserialization<AddressLCS>(ref cursor);
             retVal.SequenceNumber = source.LCSDeserialization<ulong>(ref cursor);
             retVal.TransactionPayload =

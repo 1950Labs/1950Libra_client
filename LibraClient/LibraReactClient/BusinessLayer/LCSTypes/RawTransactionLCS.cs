@@ -12,6 +12,7 @@ namespace LibraReactClient.BusinessLayer.LCSTypes
         public AddressLCS Sender { get; internal set; }
         public ulong SequenceNumber { get; internal set; }
         public TransactionPayloadLCS TransactionPayload { get; internal set; }
+        public uint FirstUint { get; internal set; }
 
         public override string ToString()
         {

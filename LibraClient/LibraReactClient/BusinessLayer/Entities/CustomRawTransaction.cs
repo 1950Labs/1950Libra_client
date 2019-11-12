@@ -11,6 +11,8 @@ namespace LibraReactClient.BusinessLayer.Entities
 {
     public class CustomRawTransaction
     {
+
+        public uint FirestUint { get; set; }
         public ulong ExpirationTimeUnix { get; set; }
         public DateTime ExpirationTime { get; set; }
         public ulong GasUnitPrice { get; set; }
@@ -43,6 +45,7 @@ namespace LibraReactClient.BusinessLayer.Entities
 
             ExpirationTimeUnix = rawTr.ExpirationTime;
             ExpirationTime = rawTr.ExpirationTime.UnixTimeStampToDateTime();
+            FirestUint = rawTr.FirstUint;
 
             GasUnitPrice = rawTr.GasUnitPrice;
             MaxGasAmount = rawTr.MaxGasAmount;
